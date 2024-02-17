@@ -2,10 +2,11 @@ using UnityEngine;
 
 public abstract class Skill : MonoBehaviour
 {
-    public int skillDamage;
-    public int skillCost;
-    public TargetCount targetCount;
-    public TargetType targetType;
+    public SkillEffect effect;
+    public int value;
+    public SkillTarget target;
+    public int range;
+    public int slot;
 
     public virtual void SpendCost()
     {

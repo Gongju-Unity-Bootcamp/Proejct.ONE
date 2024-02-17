@@ -3,7 +3,17 @@ guid: 0bc3117287aed9e4bac3a214476be2e3
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: hildebrantRoom2Props_0Mat
+    second: {fileID: 2100000, guid: d3911766734715a439586c7162d578b9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: hildebrantRoom2Props_1Mat
+    second: {fileID: 2100000, guid: 64e4ec63bd6e9d948a9572150f73d558, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

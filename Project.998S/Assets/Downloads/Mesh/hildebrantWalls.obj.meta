@@ -3,7 +3,17 @@ guid: aa8aaf0478ebe5e498c7e513ead016ff
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: hildebrantWalls_0Mat
+    second: {fileID: 2100000, guid: ee2b97325197fc049a53399f0f70228f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: hildebrantWalls_1Mat
+    second: {fileID: 2100000, guid: b116ea23c5d301344ae42925debe8f30, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

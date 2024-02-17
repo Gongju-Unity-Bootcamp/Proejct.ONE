@@ -1,27 +1,30 @@
-using UnityEngine;
 using UniRx;
+using UnityEngine;
 
 public abstract class Character : MonoBehaviour
 {
     [SerializeField] protected int maxHealth;
     [SerializeField] protected int maxAttack;
     [SerializeField] protected int maxDefense;
-    [Range(0, 100)] [SerializeField] protected short maxCritical = 0;
-    [Range(0, 5)] [SerializeField] protected short maxSkillCost = 5;
+    [Range(0, 100)] [SerializeField] protected int maxLuck = 0;
+    [Range(0, 3)] [SerializeField] protected int maxFocus = 3;
+
+    [SerializeField] protected int level;
+    [SerializeField] protected int experience;
 
     [HideInInspector] public ReactiveProperty<int> currentHealth;
     [HideInInspector] public ReactiveProperty<int> currentAttack;
     [HideInInspector] public ReactiveProperty<int> currentDefense;
-    [HideInInspector] public short currentCritical;
-    [HideInInspector] public short currentSkillCost;
+    [HideInInspector] public ReactiveProperty<int> currentLuck;
+    [HideInInspector] public ReactiveProperty<int> currentFocus;
 
     protected virtual void Init()
     {
         currentHealth.Value = maxHealth;
         currentAttack.Value = maxAttack;
         currentDefense.Value = maxDefense;
-        currentCritical = maxCritical;
-        currentSkillCost = maxSkillCost;
+        currentLuck.Value = maxLuck;
+        currentFocus.Value = maxFocus;
     }
 
     public virtual void Attack(Character target, int damage)

@@ -3,8 +3,9 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
-    public static AreaManager Area { get; private set; }
+    public static StageManager Stage { get; private set; }
     public static DataManager Data { get; private set; }
+    public static ResourceManager Resource { get; private set; }
     public static UIManager UI { get; private set; }
     public static SoundManager Sound { get; private set; }
 
@@ -22,16 +23,18 @@ public class GameManager : MonoBehaviour
 
             GameObject go;
 
-            Area = new AreaManager();
+            Stage = new StageManager();
             Data = new DataManager();
+            Resource = new ResourceManager();
             UI = new UIManager();
 
             go = new GameObject(nameof(SoundManager));
             go.transform.parent = transform;
             Sound = go.AddComponent<SoundManager>();
 
-            Area.Init();
+            Stage.Init();
             Data.Init();
+            Resource.Init();
             UI.Init();
             Sound.Init();
 
