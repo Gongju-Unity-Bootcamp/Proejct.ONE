@@ -9,7 +9,7 @@ public abstract class Character : MonoBehaviour
     [Range(0, 100)] [SerializeField] protected int maxLuck = 0;
     [Range(0, 3)] [SerializeField] protected int maxFocus = 3;
 
-    [SerializeField] protected int level;
+    [SerializeField] protected short level;
     [SerializeField] protected int experience;
 
     [HideInInspector] public ReactiveProperty<int> currentHealth;
