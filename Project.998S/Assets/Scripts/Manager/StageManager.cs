@@ -4,25 +4,21 @@ using UnityEngine;
 
 public class StageManager : MonoBehaviour
 {
-    public Queue<Dictionary<CharacterID, GameObject>> turnQueue;
-    public CharacterID turnCharacterID;
-    public GameObject turnGameObject;
-    public List<GameObject> players, enemies, previews;
-
-    public ReactiveProperty<int> round { get; private set; }
-    public ReactiveProperty<bool> isPlayerTurn { get; private set; }
-
     private const int PREVIEW = 1;
 
-    [HideInInspector] public GameObject stage;
+    public Queue<Dictionary<CharacterID, GameObject>> turnQueue;
+
+    [HideInInspector] public CharacterID turnCharacterID;
+    [HideInInspector] public GameObject turnGameObject;
+    [HideInInspector] public List<GameObject> players, enemies, previews;
+
+    [HideInInspector] public ReactiveProperty<int> round { get; private set; }
+    [HideInInspector] public ReactiveProperty<bool> isPlayerTurn { get; private set; }
+
+    private GameObject stage;
 
     public void Init()
     {
-        GameData data = GameManager.Data.Game[(int)GameAsset.Stage];
-
-        stage = GameManager.Resource.Instantiate(data.Prefab, transform);
-        stage.SetActive(false);
-
         round = new ReactiveProperty<int>();
         isPlayerTurn = new ReactiveProperty<bool>();
 
@@ -31,6 +27,13 @@ public class StageManager : MonoBehaviour
         players = new List<GameObject>();
         enemies = new List<GameObject>();
         previews = new List<GameObject>();
+
+        GameData data = GameManager.Data.Game[(int)GameAsset.Stage];
+
+        stage = GameManager.Resource.Instantiate(data.Prefab);
+        stage.SetActive(false);
+
+        CreateCharacter((StageID)1);
 
         isPlayerTurn.Subscribe(value =>
         {
@@ -46,8 +49,6 @@ public class StageManager : MonoBehaviour
 
             turnQueue.Enqueue(dump);
         });
-
-        CreateCharacter((StageID)1);
     }
 
     public void CreateCharacter(StageID id)
@@ -96,7 +97,7 @@ public class StageManager : MonoBehaviour
             GameObject character = GameManager.Spawn.ByCharacterID(id[index], position + index);
             characters.Add(character);
 
-            if (true == (character != null))
+            if (false == (character == null))
             {
                 turnQueue.Enqueue(AddQueue(id[index], character));
             }

@@ -10,6 +10,10 @@ public class PlayerController : MonoBehaviour
     {
         selectCharacter = new ReactiveProperty<GameObject>();
 
+        selectCharacter.Subscribe(value => {
+
+        });
+
         this.UpdateAsObservable()
             .Where(_ => Input.GetMouseButtonDown(0))
             .Select(_ => GetSelectCharacter())
@@ -19,11 +23,9 @@ public class PlayerController : MonoBehaviour
                 {
                     SetSelectCharacter(selectObject);
                 }
+
+                Debug.Assert(selectObject != null);
             });
-
-        selectCharacter.Subscribe(value => {
-
-        });
     }
 
     private GameObject GetSelectCharacter()

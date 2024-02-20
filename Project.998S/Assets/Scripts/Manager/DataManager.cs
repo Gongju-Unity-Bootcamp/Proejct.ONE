@@ -5,25 +5,25 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 public class DataManager
 {
-    private readonly string tablePath = "Assets/Resources/Tables/";
     public Dictionary<StageID, StageData> Stage { get; private set; }
     public Dictionary<CharacterID, CharacterData> Character { get; private set; }
-    public Dictionary<Level, LevelData> Level { get; private set; }
+    public List<LevelData> Level { get; private set; }
     public Dictionary<SkillID, SkillData> Skill { get; private set; }
     public Dictionary<EffectID, EffectData> Effect { get; private set; }
     public List<GameData> Game { get; private set; }
 
     public void Init()
     {
-        Stage = ParseToDictionary<StageID, StageData>($"{tablePath}StageTable.csv", data => data.Id);
-        Character = ParseToDictionary<CharacterID, CharacterData>($"{tablePath}CharacterTable.csv", data => data.Id);
-        Level = ParseToDictionary<Level, LevelData>($"{tablePath}LevelTable.csv", data => data.Level);
-        Skill = ParseToDictionary<SkillID, SkillData>($"{tablePath}SkillTable.csv", data => data.Id);
-        Effect = ParseToDictionary<EffectID, EffectData>($"{tablePath}EffectTable.csv", data => data.Id);
-        Game = ParseToList<GameData>($"{tablePath}GameTable.csv");
+        Stage = ParseToDictionary<StageID, StageData>(string.Concat(Define.Path.TABLE, Define.Table.STAGE), data => data.Id);
+        Character = ParseToDictionary<CharacterID, CharacterData>(string.Concat(Define.Path.TABLE, Define.Table.CHARACTER), data => data.Id);
+        Level = ParseToList<LevelData>(string.Concat(Define.Path.TABLE, Define.Table.LEVEL));
+        Skill = ParseToDictionary<SkillID, SkillData>(string.Concat(Define.Path.TABLE, Define.Table.SKILL), data => data.Id);
+        Effect = ParseToDictionary<EffectID, EffectData>(string.Concat(Define.Path.TABLE, Define.Table.EFFECT), data => data.Id);
+        Game = ParseToList<GameData>(string.Concat(Define.Path.TABLE, Define.Table.GAME));
     }
 
     private List<T> ParseToList<T>([NotNull] string path)
