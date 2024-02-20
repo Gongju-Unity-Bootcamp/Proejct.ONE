@@ -18,6 +18,15 @@ public abstract class Character : MonoBehaviour
     [HideInInspector] public ReactiveProperty<int> currentLuck;
     [HideInInspector] public ReactiveProperty<int> currentFocus;
 
+    [HideInInspector] public CharacterState state;
+
+    protected Animator animator;
+
+    protected virtual void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
+
     protected virtual void Init()
     {
         currentHealth.Value = maxHealth;

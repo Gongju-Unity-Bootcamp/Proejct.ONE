@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -12,10 +11,10 @@ public class SpawnManager : MonoBehaviour
     };
 
     public readonly int PLAYER_LEFT = 0, PLAYER_CENTER = 1, PLAYER_RIGHT = 2,
-                     ENEMY_LEFT = 3, ENEMY_CENTER = 4, ENEMY_RIGHT = 5,
-                     PREVIEW_LEFT = 6, PREVIEW_CENTER = 7, PREVIEW_RIGHT = 8;
+                        ENEMY_LEFT = 3, ENEMY_CENTER = 4, ENEMY_RIGHT = 5,
+                        PREVIEW_LEFT = 6, PREVIEW_CENTER = 7, PREVIEW_RIGHT = 8;
 
-    public GameObject spawn;
+    [HideInInspector] public GameObject spawn;
 
     public void Init()
     {
@@ -27,7 +26,7 @@ public class SpawnManager : MonoBehaviour
 
     public GameObject ByCharacterID(CharacterID id, int position)
     {
-        if (id == (CharacterID)0)
+        if (true == (id == (CharacterID)0))
         {
             return null;
         }
