@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
     public static UIManager UI { get; private set; }
     public static SoundManager Sound { get; private set; }
 
+    public static PlayerController Controller { get; private set; }
+
     private void Awake()
     {
         Init();
@@ -43,6 +45,10 @@ public class GameManager : MonoBehaviour
             go.transform.parent = transform;
             Sound = go.AddComponent<SoundManager>();
 
+            go = new GameObject(nameof(PlayerController));
+            go.transform.parent = transform;
+            Controller = go.AddComponent<PlayerController>();
+
             Store.Init();
             Data.Init();
             Resource.Init();
@@ -50,6 +56,7 @@ public class GameManager : MonoBehaviour
             Spawn.Init();
             UI.Init();
             Sound.Init();
+            Controller.Init();
 
             return;
         }

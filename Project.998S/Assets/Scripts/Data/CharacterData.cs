@@ -1,3 +1,14 @@
+public enum CharacterState
+{
+    Idle = 0,
+    Damage,
+    LongSkill,
+    ShortSkill,
+    NormalAttack,
+    Dodge,
+    Death
+}
+
 public enum CharacterPosition
 {
     Left,

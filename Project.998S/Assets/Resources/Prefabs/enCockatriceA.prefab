@@ -106,6 +106,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8078012020866531786}
   - component: {fileID: 2120615457081279036}
+  - component: {fileID: 8750535270358841671}
+  - component: {fileID: 5756558613705098566}
   m_Layer: 0
   m_Name: enCockatriceA
   m_TagString: Untagged
@@ -150,6 +152,57 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!65 &8750535270358841671
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 494005842557853981}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.22, y: 1, z: 1.86}
+  m_Center: {x: 0, y: 0.87, z: 0}
+--- !u!114 &5756558613705098566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 494005842557853981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7601a61ff9166684aa02f67ffb012922, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 0
+  maxAttack: 0
+  maxDefense: 0
+  maxLuck: 0
+  maxFocus: 3
+  level: 0
+  experience: 0
+  currentHealth:
+    value: 0
+  currentAttack:
+    value: 0
+  currentDefense:
+    value: 0
+  currentLuck:
+    value: 0
+  currentFocus:
+    value: 0
+  state: 0
 --- !u!1 &494871305011455688
 GameObject:
   m_ObjectHideFlags: 0
