@@ -1,51 +1,104 @@
+using System;
 using UniRx;
-using UniRx.Triggers;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public ReactiveProperty<GameObject> selectCharacter { get; private set; }
+    #region Fields
+    public IDisposable updateObserver { get; private set; }
+    #endregion
 
     public void Init()
     {
-        selectCharacter = new ReactiveProperty<GameObject>();
+        UpdateClickCharacterAsObservable();
+    }
 
-        selectCharacter.Subscribe(value => {
-
-        });
-
-        this.UpdateAsObservable()
+    #region Set Click Character Methods
+    private void UpdateClickCharacterAsObservable()
+    {
+        updateObserver = Observable.EveryUpdate()
             .Where(_ => Input.GetMouseButtonDown(0))
-            .Select(_ => GetSelectCharacter())
-            .Subscribe(selectObject =>
+            .Select(_ => GetSelectGameObject())
+            .Subscribe(value =>
             {
-                if (true == (selectObject != null))
+                if (value == null)
                 {
-                    SetSelectCharacter(selectObject);
+                    return;
                 }
 
-                Debug.Assert(selectObject != null);
+                if (GetCharacterTypeInGameObject(value))
+                {
+                    Managers.Game.selectPlayerCharacter.Value = value;
+                    Managers.Game.selectEnemyCharacter.Value = null;
+                }
+
+                if (true == IsEnemyType(value))
+                {
+                    Managers.Game.selectEnemyCharacter.Value = value;
+                    Managers.Game.selectPlayerCharacter.Value = null;
+                }
             });
     }
 
-    private GameObject GetSelectCharacter()
+    private GameObject GetSelectGameObject()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit))
+        if (true == Physics.Raycast(ray, out hit))
         {
             return hit.collider.gameObject;
         }
 
         return null;
     }
+    #endregion
 
-    private void SetSelectCharacter(GameObject character)
+    #region Get Character Type Methods
+    public Character GetCharacterTypeInGameObject(GameObject gameObject)
     {
-        if (true == GameManager.Stage.isPlayerTurn.Value)
+        Character character = gameObject.GetComponentAssert<Character>();
+
+        if (character.gameObject.GetType() == typeof(Player))
         {
-            selectCharacter.Value = character;
+            Player player = character.gameObject.GetComponentAssert<Player>();
+
+            return GetCharacterTypeInGameObject(player);
         }
+        
+        if (character.gameObject.GetType() == typeof(Enemy))
+        {
+            Enemy enemy = character.gameObject.GetComponentAssert<Enemy>();
+
+            return GetCharacterTypeInGameObject(enemy);
+        }
+
+
+        return character;
     }
+
+    public Player GetCharacterTypeInGameObject(Player playerCharacter)
+    {
+        Player player = playerCharacter.gameObject.GetComponentAssert<Player>();
+
+        if (player != null)
+        {
+            return player;
+        }
+
+        return null;
+    }
+
+    public Enemy GetCharacterTypeInGameObject(Enemy enemyCharacter)
+    {
+        Enemy enemy = enemyCharacter.gameObject.GetComponentAssert<Enemy>();
+
+        if (enemy != null)
+        {
+            return enemy;
+        }
+
+        return null;
+    }
+    #endregion
 }

@@ -1,11 +1,12 @@
-public enum GameAsset
+public enum GameAssetName
 {
-    Stage = 0,
-    Spawn = 1
+    Dungeon = 0,
+    Spawn = 1,
+    Highlight = 2
 }
 
 public class GameData
 {
-    public string Name { get; set; }
+    public GameAssetName Index { get; set; }
     public string Prefab { get; set; }
 }

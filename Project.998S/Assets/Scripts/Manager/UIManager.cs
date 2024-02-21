@@ -3,11 +3,16 @@ using UnityEngine;
 
 public class UIManager
 {
+    #region DataStructures
+    private Stack<UIPopup> popupStack;
+    #endregion
+
+    #region Fields
     private static readonly Vector3 DEFAULT_SCALE = Vector3.one;
     private int currentCanvasOrder = -20;
-    private Stack<UIPopup> popupStack;
 
     private GameObject UIRoot;
+    #endregion
 
     public void Init()
     {
@@ -15,13 +20,14 @@ public class UIManager
         UIRoot = new GameObject(nameof(UIRoot));
     }
 
+    #region User Interface Manager Default Methods
     public void SetCanvas(GameObject go, bool sort = true)
     {
         Canvas canvas = go.GetComponentAssert<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.overrideSorting = true;
 
-        if (sort)
+        if (true == sort)
         {
             canvas.sortingOrder = currentCanvasOrder;
             currentCanvasOrder += 1;
@@ -48,8 +54,8 @@ public class UIManager
 
     private T SetupUI<T>(Transform parent = null) where T : UserInterface
     {
-        GameObject prefab = GameManager.Resource.LoadPrefab(typeof(T).Name);
-        GameObject go = GameManager.Resource.Instantiate(prefab);
+        GameObject prefab = Managers.Resource.LoadPrefab(typeof(T).Name);
+        GameObject go = Managers.Resource.Instantiate(prefab);
 
         if (parent != null)
         {
@@ -89,7 +95,7 @@ public class UIManager
         }
 
         UIPopup popup = popupStack.Pop();
-        GameManager.Resource.Destroy(popup.gameObject);
+        Managers.Resource.Destroy(popup.gameObject);
         currentCanvasOrder -= 1;
     }
 
@@ -100,4 +106,5 @@ public class UIManager
             ClosePopupUI();
         }
     }
+    #endregion
 }

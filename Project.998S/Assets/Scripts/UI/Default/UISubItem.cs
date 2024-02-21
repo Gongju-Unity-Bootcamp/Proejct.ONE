@@ -4,10 +4,10 @@ public class UISubItem : UserInterface
     {
         base.Init();
 
-        GameManager.UI.SetCanvas(gameObject, false);
+        Managers.UI.SetCanvas(gameObject, false);
     }
     public virtual void CloseSubItem()
     {
-        GameManager.Resource.Destroy(gameObject);
+        Managers.Resource.Destroy(gameObject);
     }
 }

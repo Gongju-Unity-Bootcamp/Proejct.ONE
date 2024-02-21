@@ -1,3 +1,4 @@
-Name,Prefab
-Stage,HildebrantDungeon
-Spawn,SpawnPosition
+Index,Prefab
+1,HildebrantDungeon
+2,SpawnPosition
+3,Highlight

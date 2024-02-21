@@ -191,7 +191,7 @@ MonoBehaviour:
   maxLuck: 0
   maxFocus: 3
   level: 0
-  experience: 0
+  exp: 0
   currentHealth:
     value: 0
   currentAttack:
@@ -202,6 +202,9 @@ MonoBehaviour:
     value: 0
   currentFocus:
     value: 0
+  skills: []
+  characterId: 0
+  characterName: 
   state: 0
 --- !u!1 &494871305011455688
 GameObject:

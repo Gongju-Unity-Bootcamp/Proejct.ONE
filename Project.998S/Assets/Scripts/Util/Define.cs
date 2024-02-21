@@ -8,6 +8,8 @@ public static class Define
         public const string SKILL = "SkillTable.csv";
         public const string EFFECT = "EffectTable.csv";
         public const string GAME = "GameTable.csv";
+        public const string EQUIP = "EquipTable.csv";
+        public const string CONSUMP = "ConsumpTable.csv";
     }
 
     public static class Path

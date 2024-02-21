@@ -1,2 +1,8 @@
-Id,Name,Prefab,Icon,Animation,EffectId
-2001,일반 공격,Skill2001,Skill2001,0,3001
+Id,Name,Icon,Damage,Accuracy,EffectId
+2001,타격,Skill2001,0,50,3001
+2002,충돌,Skill2002,10,50,3002
+2003,분쇄,Skill2003,10,50,3003
+2004,적중,Skill2004,6,50,3005
+2005,관통,Skill2005,6,50,3006
+2006,충돌,Skill2006,6,50,3008
+2007,절삭,Skill2007,6,50,3010

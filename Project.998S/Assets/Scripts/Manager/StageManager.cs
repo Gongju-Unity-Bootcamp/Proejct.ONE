@@ -1,117 +1,151 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UniRx;
 using UnityEngine;
 
 public class StageManager : MonoBehaviour
 {
-    private const int PREVIEW = 1;
+    #region DataStructures
+    [HideInInspector] public List<Character> players, enemies, previews;
+    [HideInInspector] public Queue<Dictionary<CharacterID, Character>> turnQueue;
+    #endregion
 
-    public Queue<Dictionary<CharacterID, GameObject>> turnQueue;
+    #region Fields
+    private const int PREVIEW = 1, MAX_CHARACTER_COUNT = 3;
 
-    [HideInInspector] public CharacterID turnCharacterID;
-    [HideInInspector] public GameObject turnGameObject;
-    [HideInInspector] public List<GameObject> players, enemies, previews;
+    [HideInInspector] public ReactiveProperty<int> turnCount;
+    [HideInInspector] public ReactiveProperty<CharacterID> turnCharacterID;
+    [HideInInspector] public ReactiveProperty<Character> turnCharacter;
 
-    [HideInInspector] public ReactiveProperty<int> round { get; private set; }
-    [HideInInspector] public ReactiveProperty<bool> isPlayerTurn { get; private set; }
+    [HideInInspector] public ReactiveProperty<Character> selectCharacter;
 
-    private GameObject stage;
+    private GameObject dungeon, spawnPoint;
+    #endregion
 
     public void Init()
     {
-        round = new ReactiveProperty<int>();
-        isPlayerTurn = new ReactiveProperty<bool>();
+        players = enemies = previews = new List<Character>();
+        turnQueue = new Queue<Dictionary<CharacterID, Character>>();
 
-        turnQueue = new Queue<Dictionary<CharacterID, GameObject>>();
+        turnCount = new ReactiveProperty<int>(0);
+        turnCharacterID = new ReactiveProperty<CharacterID>();
+        turnCharacter = new ReactiveProperty<Character>();
 
-        players = new List<GameObject>();
-        enemies = new List<GameObject>();
-        previews = new List<GameObject>();
-
-        GameData data = GameManager.Data.Game[(int)GameAsset.Stage];
-
-        stage = GameManager.Resource.Instantiate(data.Prefab);
-        stage.SetActive(false);
-
-        CreateCharacter((StageID)1);
-
-        isPlayerTurn.Subscribe(value =>
-        {
-            Dictionary<CharacterID, GameObject> dump = new Dictionary<CharacterID, GameObject>();
-            dump = turnQueue.Dequeue();
-
-            foreach (KeyValuePair<CharacterID, GameObject> dictionary in dump)
-            {
-                turnCharacterID = dictionary.Key;
-                turnGameObject = dictionary.Value;
-                break;
-            }
-
-            turnQueue.Enqueue(dump);
-        });
+        selectCharacter = new ReactiveProperty<Character>();
     }
 
-    public void CreateCharacter(StageID id)
+    #region Create Dungeon In Stage Methods
+    public void CreateDungeon(StageID id)
     {
-        stage.SetActive(true);
-        round.Value = (int)id;
-        isPlayerTurn.Value = true;
-        
-        players = ArrangeCharacter(players, 0, new CharacterID[3] { 
+        dungeon = Managers.Resource.Instantiate(Managers.Data.Game[(int)GameAssetName.Dungeon].Prefab);
+        spawnPoint = Managers.Resource.Instantiate(Managers.Data.Game[(int)GameAssetName.Spawn].Prefab);
+
+        players = ResetCharacter(players, 0, new CharacterID[MAX_CHARACTER_COUNT] { 
             (CharacterID)1001, 
-            (CharacterID)0, 
+            (CharacterID)0,
             (CharacterID)1002 
         });
-        enemies = ArrangeCharacter(enemies, 1, new CharacterID[3] {
-            (CharacterID)GameManager.Data.Stage[id].Left,
-            (CharacterID)GameManager.Data.Stage[id].Center,
-            (CharacterID)GameManager.Data.Stage[id].Right
+        enemies = ResetCharacter(enemies, 1, new CharacterID[MAX_CHARACTER_COUNT] {
+            (CharacterID)Managers.Data.Stage[id].Left,
+            (CharacterID)Managers.Data.Stage[id].Center,
+            (CharacterID)Managers.Data.Stage[id].Right
         });
-        previews = ArrangeCharacter(previews, 2, new CharacterID[3] {
-            (CharacterID)GameManager.Data.Stage[id + PREVIEW].Left,
-            (CharacterID)GameManager.Data.Stage[id + PREVIEW].Center,
-            (CharacterID)GameManager.Data.Stage[id + PREVIEW].Right
+        previews = ResetCharacter(previews, 2, new CharacterID[MAX_CHARACTER_COUNT] {
+            (CharacterID)Managers.Data.Stage[id + PREVIEW].Left,
+            (CharacterID)Managers.Data.Stage[id + PREVIEW].Center,
+            (CharacterID)Managers.Data.Stage[id + PREVIEW].Right
         });
     }
 
-    private List<GameObject> ArrangeCharacter(List<GameObject> characters, int type, params CharacterID[] id)
+    private List<Character> ResetCharacter(List<Character> characters, int type, params CharacterID[] id)
     {
         characters.Clear();
-        int position = int.MaxValue;
+        int position = default;
 
         switch (type)
         {
             case 0:
-                position = GameManager.Spawn.PLAYER_LEFT;
+                position = Managers.Spawn.PLAYER_LEFT;
                 break;
             case 1:
-                position = GameManager.Spawn.ENEMY_LEFT;
+                position = Managers.Spawn.ENEMY_LEFT;
                 break;
             case 2:
-                position = GameManager.Spawn.PREVIEW_LEFT;
+                position = Managers.Spawn.PREVIEW_LEFT;
                 break;
         }
 
         for (int index = 0; index < id.Length; ++index)
         {
-            GameObject character = GameManager.Spawn.ByCharacterID(id[index], position + index);
-            characters.Add(character);
+            GameObject spawnObject = Managers.Spawn.CharacterByID(id[index], position + index);
 
-            if (false == (character == null))
+            if (spawnObject == null)
             {
-                turnQueue.Enqueue(AddQueue(id[index], character));
+                continue;
+            }
+
+            if (type < 2)
+            {
+                Character character = spawnObject.GetComponentAssert<Character>();
+                character.Init(id[index]);
+                characters.Add(character);
+
+                turnQueue.Enqueue(Utils.ReturnDictionary(id[index], character));
             }
         }
 
         return characters;
     }
+    #endregion
 
-    private Dictionary<CharacterID, GameObject> AddQueue(CharacterID id, GameObject character)
-    {
-        Dictionary<CharacterID, GameObject> queue = new Dictionary<CharacterID, GameObject>();
+    //#region Update Turn In Stage Methods
+    //private void UpdateTurnAsObservable()
+    //{
+    //    this.UpdateAsObservable()
+    //        .Where(_ => true == isTurnSequenceStart.Value)
+    //        .Subscribe(_ =>
+    //        {
+    //            isTurnSequenceStart.Value = false;
 
-        queue[id] = character;
+    //            Character character = NextCharacter();
 
-        return queue;
-    }
+    //            if (IsPlayerType(character))
+    //            {
+    //                PlayerTurn();
+    //            }
+    //            else
+    //            {
+    //                EnemyTurn();
+    //            }
+    //        });
+    //}
+
+    //private Character NextCharacter()
+    //{
+    //    KeyValuePair<CharacterID, Character> dictionary = turnQueue.Dequeue().First();
+
+    //    turnCharacterID.Value = dictionary.Key;
+    //    turnCharacter.Value = dictionary.Value;
+    //    turnQueue.Enqueue(Utils.ReturnDictionary(dictionary.Key, dictionary.Value));
+
+    //    return turnCharacter.Value;
+    //}
+
+    //private void PlayerTurn()
+    //{
+    //    UpdateClickCharacter();
+    //}
+
+    //private void EnemyTurn()
+    //{
+    //    Debug.Log($"{turnCharacter.Value}");
+    //    ResetUpdateTurn();
+    //}
+
+    //private void ResetUpdateTurn()
+    //{
+    //    isTurnSequenceStart.Value = true;
+    //}
+    //#endregion
 }

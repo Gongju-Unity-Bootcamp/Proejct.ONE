@@ -19,7 +19,11 @@ MonoBehaviour:
   - Green
   - Blue
   - Alpha
-  m_ValidRenderingLayers: 31
+  - Layer default
+  - Layer 1
+  - Layer 2
+  - Layer 3
+  m_ValidRenderingLayers: 511
   lightLayerName0: Light Layer default
   lightLayerName1: Light Layer 1
   lightLayerName2: Light Layer 2

@@ -4,10 +4,10 @@ public class UIPopup : UserInterface
     {
         base.Init();
 
-        GameManager.UI.SetCanvas(gameObject);
+        Managers.UI.SetCanvas(gameObject);
     }
     public virtual void ClosePopupUI()
     {
-        GameManager.UI.ClosePopupUI(this);
+        Managers.UI.ClosePopupUI(this);
     }
 }

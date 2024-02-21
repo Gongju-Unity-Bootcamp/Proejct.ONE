@@ -1,65 +1,61 @@
+using UniRx;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    private static GameManager Instance;
-    public static StoreManager Store { get; private set; }
-    public static DataManager Data { get; private set; }
-    public static ResourceManager Resource { get; private set; }
-    public static SpawnManager Spawn { get; private set; }
-    public static StageManager Stage { get; private set; }
-    public static UIManager UI { get; private set; }
-    public static SoundManager Sound { get; private set; }
+    #region Fields
+    [HideInInspector] public PlayerController PlayerController;
+    [HideInInspector] public ReactiveProperty<Player> selectPlayerCharacter { get; private set; }
+    [HideInInspector] public ReactiveProperty<Enemy> selectEnemyCharacter { get; private set; }
+    private GameObject highlight;
+    #endregion
 
-    public static PlayerController Controller { get; private set; }
-
-    private void Awake()
+    public void Init()
     {
-        Init();
+        selectPlayerCharacter = new ReactiveProperty<Player>();
+        selectEnemyCharacter = new ReactiveProperty<Enemy>();
+
+        GameObject go = new GameObject(nameof(PlayerController));
+        go.transform.parent = transform;
+        PlayerController = go.AddComponent<PlayerController>();
+
+        PlayerController.Init();
+
+        Managers.Stage.CreateDungeon((StageID)1);
+        UpdateSelectCharacterAsObservable();
     }
 
-    private void Init()
+    private void UpdateSelectCharacterAsObservable()
     {
-        if (Instance != null)
+        highlight = Managers.Resource.Instantiate(Managers.Data.Game[(int)GameAssetName.Highlight].Prefab);
+        highlight.SetActive(false);
+
+        selectPlayerCharacter.Subscribe(value =>
         {
-            Destroy(gameObject);
-            return;
-        }
+            if (value == null)
+            {
+                return;
+            }
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+            if (highlight.transform.position != value.transform.position)
+            {
+                highlight.SetActive(true);
+                highlight.transform.position = value.transform.position;
+            }
+        });
 
-        GameObject go;
+        selectEnemyCharacter.Subscribe(value =>
+        {
+            if (value == null)
+            {
+                return;
+            }
 
-        Store = new StoreManager();
-        Data = new DataManager();
-        Resource = new ResourceManager();
-
-        go = new GameObject(nameof(SpawnManager));
-        go.transform.parent = transform;
-        Spawn = go.AddComponent<SpawnManager>();
-
-        go = new GameObject(nameof(StageManager));
-        go.transform.parent = transform;
-        Stage = go.AddComponent<StageManager>();
-
-        UI = new UIManager();
-
-        go = new GameObject(nameof(SoundManager));
-        go.transform.parent = transform;
-        Sound = go.AddComponent<SoundManager>();
-
-        go = new GameObject(nameof(PlayerController));
-        go.transform.parent = transform;
-        Controller = go.AddComponent<PlayerController>();
-
-        Store.Init();
-        Data.Init();
-        Resource.Init();
-        Spawn.Init();
-        Stage.Init();
-        UI.Init();
-        Sound.Init();
-        Controller.Init();
+            if (highlight.transform.position != value.transform.position)
+            {
+                highlight.SetActive(true);
+                highlight.transform.position = value.transform.position;
+            }
+        });
     }
 }

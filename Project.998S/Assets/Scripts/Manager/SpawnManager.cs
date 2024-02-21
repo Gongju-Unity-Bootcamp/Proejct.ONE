@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    private readonly Vector3[] footboards = new Vector3[9]
+    #region Fields
+    private static readonly Vector3[] footboards = new Vector3[9]
     {
         new Vector3(-3, 0, -4), new Vector3(0, 0, -4), new Vector3(3, 0, -4),
         new Vector3(-3, 0, 4), new Vector3(0, 0, 4), new Vector3(3, 0, 4),
@@ -15,27 +16,23 @@ public class SpawnManager : MonoBehaviour
                         PREVIEW_LEFT = 6, PREVIEW_CENTER = 7, PREVIEW_RIGHT = 8;
 
     private GameObject Entities, Mannequins;
-    private GameObject spawn;
+    #endregion
 
     public void Init()
     {
         Entities = new GameObject(nameof(Entities));
         Mannequins = new GameObject(nameof(Mannequins));
-
-        GameData data = GameManager.Data.Game[(int)GameAsset.Spawn];
-
-        spawn = GameManager.Resource.Instantiate(data.Prefab);
-        spawn.SetActive(false);
     }
 
-    public GameObject ByCharacterID(CharacterID id, int position, Transform parent = null)
+    #region Spawn Character By ID Methods
+    public GameObject CharacterByID(CharacterID id, int position, Transform parent = null)
     {
-        if (true == (id == (CharacterID)0))
+        if ((CharacterID)0 == id)
         {
             return null;
         }
 
-        CharacterData data = GameManager.Data.Character[id];
+        CharacterData data = Managers.Data.Character[id];
 
         switch (position)
         {
@@ -50,14 +47,15 @@ public class SpawnManager : MonoBehaviour
                 break;
         }
 
-        return ByCharacterID(data, position, parent);
+        return CharacterByID(data, position, parent);
     }
 
-    public GameObject ByCharacterID(CharacterData data, int position, Transform parent = null)
+    public GameObject CharacterByID(CharacterData data, int position, Transform parent = null)
     {
-        GameObject character = GameManager.Resource.Instantiate(data.Prefab, parent);
+        GameObject character = Managers.Resource.Instantiate(data.Prefab, parent);
         character.transform.position = footboards[position];
 
         return character;
     }
+    #endregion
 }
