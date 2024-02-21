@@ -26,17 +26,17 @@ public class PlayerController : MonoBehaviour
                     return;
                 }
 
-                if (GetCharacterTypeInGameObject(value))
-                {
-                    Managers.Game.selectPlayerCharacter.Value = value;
-                    Managers.Game.selectEnemyCharacter.Value = null;
-                }
+                //if (GetCharacterTypeInGameObject(value))
+                //{
+                //    Managers.Game.selectPlayerCharacter.Value = value;
+                //    Managers.Game.selectEnemyCharacter.Value = null;
+                //}
 
-                if (true == IsEnemyType(value))
-                {
-                    Managers.Game.selectEnemyCharacter.Value = value;
-                    Managers.Game.selectPlayerCharacter.Value = null;
-                }
+                //if (true == IsEnemyType(value))
+                //{
+                //    Managers.Game.selectEnemyCharacter.Value = value;
+                //    Managers.Game.selectPlayerCharacter.Value = null;
+                //}
             });
     }
 
