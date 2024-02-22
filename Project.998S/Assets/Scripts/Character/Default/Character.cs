@@ -1,13 +1,9 @@
 using System;
 using UniRx;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public abstract class Character : MonoBehaviour
 {
-    #region Fields
-    public const float ROTATION_SPEED = 5f;
-
     protected int maxHealth;
     protected int maxAttack;
     protected int maxDefense;
@@ -32,9 +28,7 @@ public abstract class Character : MonoBehaviour
     protected Transform lookTransform;
     protected Target target;
 
-    private IDisposable updateLookAtTargetObserver;
     private IDisposable updateStateChangeAsObservable;
-    #endregion
 
     protected virtual void Awake()
     {
@@ -48,16 +42,16 @@ public abstract class Character : MonoBehaviour
         currentDefense = new ReactiveProperty<int>();
         currentLuck = new ReactiveProperty<int>();
         currentFocus = new ReactiveProperty<int>();
+        
+        level = new ReactiveProperty<int>();
+        exp = new ReactiveProperty<int>();
 
         characterId = id;
         characterName = Managers.Data.Character[id].Name;
         characterState.Value = CharacterState.Idle;
 
-        target = Managers.Game.target;
-
         InitStat(Managers.Data.Character[id]);
 
-        UpdateLookAtTarget();
         UpdateStateChangeAsObservable();
     }
 
@@ -69,34 +63,51 @@ public abstract class Character : MonoBehaviour
         maxLuck = data.Luck;
         maxFocus = data.Focus;
 
-        currentHealth.Value = maxHealth;
-        currentAttack.Value = maxAttack;
-        currentDefense.Value = maxDefense;
-        currentLuck.Value = maxLuck;
+        level.Value = (int)data.Level;
+        LevelData levelData = Managers.Data.Level[(int)data.Level - 1];
+
+        exp.Value = levelData.Exp;
+
+        currentHealth.Value = Define.Calculate.Health(maxHealth, level.Value);
+        currentAttack.Value = Define.Calculate.Attack(maxAttack, level.Value);
+        currentDefense.Value = Define.Calculate.Defense(maxDefense);
+        currentLuck.Value = Define.Calculate.Luck(maxLuck);
         currentFocus.Value = maxFocus;
-    }
-
-    protected void UpdateLookAtTarget()
-    {
-        updateLookAtTargetObserver = Observable.EveryUpdate()
-            .Where(_ => Managers.Game.selectCharacter.Value != null)
-            .Select(character => Managers.Game.selectCharacter.Value)
-            .Subscribe(character =>
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(target.transform.position - character.transform.position);
-                Quaternion newRotation = Quaternion.Slerp(transform.rotation, targetRotation, ROTATION_SPEED * Time.fixedDeltaTime);
-
-                character.transform.rotation = newRotation;
-            }).AddTo(this);
     }
 
     protected void UpdateStateChangeAsObservable()
     {
-
+        characterState.Where(_ => characterState != null)
+            .Subscribe(state =>
+            {
+                switch (state)
+                {
+                    case CharacterState.Idle:
+                        break;
+                    case CharacterState.Dodge:
+                        break;
+                    case CharacterState.Damage:
+                        break;
+                    case CharacterState.Death:
+                        break;
+                    case CharacterState.NormalAttack:
+                        animator.SetTrigger(AnimatorParameter.NormalAttack);
+                        break;
+                    case CharacterState.ShortSkill:
+                        break;
+                    case CharacterState.LongSkill:
+                        break;
+                }
+            });
     }
+
+    public void LookAtTarget(Transform target)
+        => transform.LookAt(target);
 
     public virtual void GetDamage(int damage)
     {
+        characterState.Value = CharacterState.Damage;
+
         if (currentHealth.Value > 0)
         {
             currentHealth.Value -= Define.Calculate.Damage(currentAttack.Value, currentDefense.Value, currentLuck.Value);

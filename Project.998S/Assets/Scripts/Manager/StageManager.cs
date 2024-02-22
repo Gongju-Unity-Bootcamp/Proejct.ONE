@@ -10,13 +10,13 @@ public class StageManager : MonoBehaviour
     [HideInInspector] public Queue<Character> turnQueue;
 
     public readonly int PREVIEW = 1;
-    public const int PLAYER_INDEX = 0, ENEMY_INDEX = 1, PREVIEW_INDEX = 2;
+    public const int PLAYER_INDEX = 0, ENEMY_INDEX = 1, PREVIEW_INDEX = 2,
+                     MAX_CHARACTER_COUNT = 3;
 
     [HideInInspector] public ReactiveProperty<bool> isPlayerTurn { get; set; }
     [HideInInspector] public ReactiveProperty<bool> isEnemyTurn { get; set; }
 
     [HideInInspector] public ReactiveProperty<int> turnCount { get; set; }
-    [HideInInspector] public ReactiveProperty<CharacterID> turnCharacterID { get; set; }
     [HideInInspector] public ReactiveProperty<Character> turnCharacter { get; set; }
 
     private GameObject dungeon, spawnPoint;
@@ -32,7 +32,6 @@ public class StageManager : MonoBehaviour
         isEnemyTurn = new ReactiveProperty<bool>();
 
         turnCount = new ReactiveProperty<int>();
-        turnCharacterID = new ReactiveProperty<CharacterID>();
         turnCharacter = new ReactiveProperty<Character>();
     }
 
@@ -41,17 +40,20 @@ public class StageManager : MonoBehaviour
         dungeon = Managers.Resource.Instantiate(Managers.Data.GamePrefab[GamePrefabID.Dungeon].Prefab);
         spawnPoint = Managers.Resource.Instantiate(Managers.Data.GamePrefab[GamePrefabID.Spawn].Prefab);
 
-        players = ResetCharacter(PLAYER_INDEX, players, ReturnArray<CharacterID>(
+        players = ResetCharacter(PLAYER_INDEX, players, ReturnArray<CharacterID>
+        (
             (CharacterID)1001,
             (CharacterID)1002,
             (CharacterID)1003
         ));
-        enemies = ResetCharacter(ENEMY_INDEX, enemies, ReturnArray<CharacterID>(
+        enemies = ResetCharacter(ENEMY_INDEX, enemies, ReturnArray<CharacterID>
+        (
             (CharacterID)Managers.Data.Stage[id].Left,
             (CharacterID)Managers.Data.Stage[id].Center,
             (CharacterID)Managers.Data.Stage[id].Right
         ));
-        ResetCharacter(PREVIEW_INDEX, previews, ReturnArray<CharacterID>(
+        ResetCharacter(PREVIEW_INDEX, previews, ReturnArray<CharacterID>
+        (
             (CharacterID)Managers.Data.Stage[id + PREVIEW].Left,
             (CharacterID)Managers.Data.Stage[id + PREVIEW].Center,
             (CharacterID)Managers.Data.Stage[id + PREVIEW].Right
@@ -114,7 +116,7 @@ public class StageManager : MonoBehaviour
 
             ChangeTurn(type == typeof(Player));
 
-            Debug.Log($"[StageManager] : 현재 턴 캐릭터 = {turnCharacter.Value.characterName}, {turnCharacter.Value}");
+            Debug.Log($"[StageManager] : This character turn = {turnCharacter.Value.characterName}, {turnCharacter.Value}");
 
             turnQueue.Enqueue(turnCharacter.Value);
         });
@@ -124,6 +126,8 @@ public class StageManager : MonoBehaviour
     {
         isPlayerTurn.Value = isTypeCharacter;
         isEnemyTurn.Value = !isTypeCharacter;
+
+        Managers.Game.selectCharacter.Value = null;
     }
 
     public void NextTurn() 

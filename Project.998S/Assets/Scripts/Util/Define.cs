@@ -46,16 +46,16 @@ public static class Define
         /// <param name="weaponAttack">착용 장비 공격력</param>
         /// <param name="level">캐릭터 현재 레벨</param>
         /// <returns></returns>
-        public static int Attack(int attack, int weaponAttack = 0, int level = 1) 
-            => attack + weaponAttack + Convert.ToInt32(LEVEL_PER_ATTACK * level);
+        public static int Attack(int attack, int equipAttack = 0, int level = 1) 
+            => attack + equipAttack + Convert.ToInt32(LEVEL_PER_ATTACK * level);
 
         /// <summary>
         /// 캐릭터의 방어력을 계산하기 위한 메소드입니다.
         /// </summary>
         /// <param name="defense">캐릭터 고유 방어력</param>
         /// <returns></returns>
-        public static int Defense(int defense) 
-            => defense < 0 ? 0 : defense;
+        public static int Defense(int defense, int equipDefense = 0) 
+            => defense + equipDefense < 0 ? 0 : equipDefense;
 
         /// <summary>
         /// 캐릭터의 행운을 계산하기 위한 메소드입니다.
@@ -63,7 +63,7 @@ public static class Define
         /// <param name="currentluck">캐릭터 고유 행운 또는 장비 정확도</param>
         /// <param name="newluck">착용 장비 행운 또는 스킬 정확도</param>
         /// <returns></returns>
-        public static int Luck(int currentluck, int newluck)
+        public static int Luck(int currentluck, int newluck = 0)
         {
             int result = currentluck + newluck;
            
@@ -84,10 +84,10 @@ public static class Define
         /// 캐릭터의 총 데미지를 계산하기 위한 메소드입니다.
         /// </summary>
         /// <param name="attack">캐릭터 합산 공격력</param>
-        /// <param name="armor">캐릭터 합산 방어력</param>
+        /// <param name="Defense">캐릭터 합산 방어력</param>
         /// <param name="luck">캐릭터 합산 행운</param>
         /// <returns></returns>
-        public static int Damage(int attack, int armor, int luck)
+        public static int Damage(int attack, int Defense, int luck)
         {
             switch (luck)
             {
@@ -100,7 +100,7 @@ public static class Define
             }
 
             int tempLuck = IsChance(luck) == true ? 1 : 0;
-            int result = Convert.ToInt32(attack + (attack * CRITICAL_MULTI * tempLuck) - armor);
+            int result = Convert.ToInt32(attack + (attack * CRITICAL_MULTI * tempLuck) - Defense);
 
             if (result < 0)
             {

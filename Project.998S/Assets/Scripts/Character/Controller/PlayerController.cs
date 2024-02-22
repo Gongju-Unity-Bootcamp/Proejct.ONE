@@ -9,15 +9,7 @@ public class PlayerController : Controller
     {
         base.Init();
 
-        UpdatePlayerTurnAsObservable();
-    }
-
-    private void UpdatePlayerTurnAsObservable()
-    {
-        Managers.Stage.isPlayerTurn.Subscribe(_ =>
-        {
-            
-        });
+        UpdateTurnAsObservable(Managers.Stage.isPlayerTurn);
     }
 
     protected override void UpdateActionAsObservable()
@@ -49,12 +41,24 @@ public class PlayerController : Controller
         return null;
     }
 
+    protected override void UpdateTurnAsObservable(ReactiveProperty<bool> isCharacterTurn)
+    {
+        base.UpdateTurnAsObservable(isCharacterTurn);
+    }
+
+    protected override void SelectCharacterAtFirstTurn()
+    {
+
+    }
+
     protected override Type ReturnCaseEnemyType(GameObject gameObject)
     {
         Enemy enemy = gameObject.GetCharacterInGameObject<Enemy>();
         target.gameObject.SetActive(true);
 
+        Managers.Stage.turnCharacter.Value.characterState.Value = CharacterState.NormalAttack;
         Managers.Game.selectCharacter.Value = enemy.GetCharacterInGameObject<Character>();
+        Managers.Stage.turnCharacter.Value.characterState.Value = CharacterState.Idle;
         Managers.Stage.NextTurn();
 
         return enemy.GetCharacterTypeInGameObject<Enemy>();

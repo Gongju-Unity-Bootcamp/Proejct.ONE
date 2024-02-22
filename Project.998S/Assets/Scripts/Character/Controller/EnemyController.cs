@@ -12,25 +12,12 @@ public enum AgentState
 public class EnemyController : Controller
 {
     private int randomIndex;
+
     public override void Init()
     {
         base.Init();
 
-        UpdateEnemyTurnAsObservable();
-    }
-
-    private void UpdateEnemyTurnAsObservable()
-    {
-        Managers.Stage.isEnemyTurn.Subscribe(_ =>
-        {
-            SelectPlayerAtFirstTurn();
-        });
-    }
-
-    private void SelectPlayerAtFirstTurn()
-    {
-        randomIndex = GetRandomIndex();
-        GetSelectGameObject();
+        UpdateTurnAsObservable(Managers.Stage.isEnemyTurn);
     }
 
     protected override void UpdateActionAsObservable()
@@ -43,7 +30,6 @@ public class EnemyController : Controller
                 if (gameObject == null)
                 {
                     return;
-
                 }
 
                 CheckCharacterType(gameObject);
@@ -57,12 +43,25 @@ public class EnemyController : Controller
         return Managers.Stage.players[randomIndex].gameObject;
     }
 
+    protected override void UpdateTurnAsObservable(ReactiveProperty<bool> isCharacterTurn)
+    {
+        base.UpdateTurnAsObservable(isCharacterTurn);
+    }
+
+    protected override void SelectCharacterAtFirstTurn()
+    {
+        randomIndex = GetRandomIndex();
+        GetSelectGameObject();
+    }
+
     protected override Type ReturnCasePlayerType(GameObject gameObject)
     {
         Player player = gameObject.GetCharacterInGameObject<Player>();
         target.gameObject.SetActive(true);
 
+        Managers.Stage.turnCharacter.Value.characterState.Value = CharacterState.NormalAttack;
         Managers.Game.selectCharacter.Value = player.GetCharacterInGameObject<Character>();
+        Managers.Stage.turnCharacter.Value.characterState.Value = CharacterState.Idle;
         Managers.Stage.NextTurn();
 
         return player.GetCharacterTypeInGameObject<Player>();

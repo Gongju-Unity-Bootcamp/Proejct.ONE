@@ -57,8 +57,28 @@ public static class Utils
         return gameObject.GetComponent<T>();
     }
 
+    /// <summary>
+    /// 게임 오브젝트에서 캐릭터 오브젝트의 타입 반환하기 위한 메소드입니다.
+    /// </summary>
+    /// <param name="gameObject">게임 오브젝트</param>
     public static Type GetCharacterTypeInGameObject<T>(GameObject gameObject)
         => gameObject.GetCharacterInGameObject<T>().GetType();
+
+    /// <summary>
+    /// 게임 오브젝트에서 캐릭터 오브젝트의 사망 여부를 반환하기 위한 메소드입니다.
+    /// </summary>
+    /// <param name="gameObject"></param>
+    public static bool IsCharacterDead(GameObject gameObject)
+    {
+        Character character = gameObject.GetCharacterInGameObject<Character>();
+
+        if (character.characterState.Value == CharacterState.Death)
+        {
+            return true;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// 딕셔너리 다중 타입의 부분 요소를 반환하기 위한 메소드입니다.

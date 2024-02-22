@@ -5,6 +5,7 @@ using UnityEngine;
 public abstract class Controller : MonoBehaviour
 {
     protected Target target;
+    protected int[] targetFindSequence;
 
     protected IDisposable updateActionObserver;
 
@@ -14,13 +15,33 @@ public abstract class Controller : MonoBehaviour
     public virtual void Init()
     {
         target = Managers.Game.target;
-
+        targetFindSequence = new int[StageManager.MAX_CHARACTER_COUNT]
+        { 
+            SpawnManager.PLAYER_CENTER, 
+            SpawnManager.PLAYER_LEFT, 
+            SpawnManager.PLAYER_RIGHT 
+        };
         UpdateActionAsObservable();
     }
 
     protected abstract void UpdateActionAsObservable();
 
     protected abstract GameObject GetSelectGameObject();
+
+    protected virtual void UpdateTurnAsObservable(ReactiveProperty<bool> isCharacterTurn)
+    {
+        isCharacterTurn
+            .Where(_ => Managers.Game.selectCharacter == null)
+            .Subscribe(_ =>
+            {
+                SelectCharacterAtFirstTurn();
+            });
+    }
+
+    protected virtual void SelectCharacterAtFirstTurn()
+    {
+
+    }
 
     protected Type CheckCharacterType(GameObject gameObject)
     {
