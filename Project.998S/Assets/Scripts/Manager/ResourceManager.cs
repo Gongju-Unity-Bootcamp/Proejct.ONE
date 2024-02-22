@@ -37,7 +37,7 @@ public class ResourceManager
     }
     #endregion
 
-    #region Resources Manager Default Methods
+    #region Load Resource Methods
     public Animator LoadAnimator(string path) => Load(Animators, string.Concat(Define.Path.ANIMATOR, path));
     public Image LoadIcon(string path) => Load(Icons, string.Concat(Define.Path.ICON, path));
     public Material LoadMaterial(string path) => Load(Materials, string.Concat(Define.Path.MATERIAL, path));
