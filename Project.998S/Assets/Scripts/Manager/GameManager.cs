@@ -1,61 +1,65 @@
 using UniRx;
 using UnityEngine;
+using static Utils;
 
 public class GameManager : MonoBehaviour
 {
     #region Fields
     [HideInInspector] public PlayerController PlayerController;
-    [HideInInspector] public ReactiveProperty<Player> selectPlayerCharacter { get; private set; }
-    [HideInInspector] public ReactiveProperty<Enemy> selectEnemyCharacter { get; private set; }
-    private GameObject highlight;
+    [HideInInspector] public EnemyController EnemyController;
+    [HideInInspector] public Target Target;
+
+    [HideInInspector] public ReactiveProperty<int> round { get; private set; }
+    [HideInInspector] public ReactiveProperty<Character> selectCharacter { get; private set; }
     #endregion
 
     public void Init()
     {
-        selectPlayerCharacter = new ReactiveProperty<Player>();
-        selectEnemyCharacter = new ReactiveProperty<Enemy>();
+        selectCharacter = new ReactiveProperty<Character>();
 
         GameObject go = new GameObject(nameof(PlayerController));
-        go.transform.parent = transform;
         PlayerController = go.AddComponent<PlayerController>();
+        go = new GameObject(nameof(EnemyController));
+        EnemyController = go.AddComponent<EnemyController>();
+        GamePrefabData data = Managers.Data.GamePrefab[GamePrefabID.Highlight];
 
         PlayerController.Init();
+        EnemyController.Init();
 
-        Managers.Stage.CreateDungeon((StageID)1);
-        UpdateSelectCharacterAsObservable();
+        GamePlay((StageID)1 , data);
     }
 
-    private void UpdateSelectCharacterAsObservable()
+    #region Gameplay Sequence
+    public void GamePlay(StageID id, GamePrefabData data)
     {
-        highlight = Managers.Resource.Instantiate(Managers.Data.Game[(int)GameAssetName.Highlight].Prefab);
-        highlight.SetActive(false);
+        Managers.Stage.CreateDungeon(id);
+        Managers.Stage.UpdateTurnAsObservable();
+        UpdateSelectCharacterAsObservable(data);
+    }
+    #endregion
 
-        selectPlayerCharacter.Subscribe(value =>
+    #region Target Character Methods
+    private void UpdateSelectCharacterAsObservable(GamePrefabData data)
+    {
+        Target = CreateHighlight(data).GetComponentAssert<Target>();
+        Target.transform.position = Managers.Spawn.footboards[Managers.Spawn.ENEMY_CENTER];
+        selectCharacter.Value = Managers.Stage.enemies[Managers.Stage.PREVIEW].GetCharacterInGameObject<Character>();
+
+        selectCharacter.Subscribe(character =>
         {
-            if (value == null)
+            if (character == null)
             {
                 return;
             }
 
-            if (highlight.transform.position != value.transform.position)
-            {
-                highlight.SetActive(true);
-                highlight.transform.position = value.transform.position;
-            }
-        });
-
-        selectEnemyCharacter.Subscribe(value =>
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            if (highlight.transform.position != value.transform.position)
-            {
-                highlight.SetActive(true);
-                highlight.transform.position = value.transform.position;
-            }
+            PlayerController.SelectTarget(character);
+            Target.gameObject.SetActive(true);
         });
     }
+
+    private GameObject CreateHighlight(GamePrefabData data)
+    {
+        return Managers.Resource.Instantiate(data.Prefab);
+    }
+    #endregion
 }

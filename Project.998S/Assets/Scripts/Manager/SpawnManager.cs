@@ -1,9 +1,10 @@
 using UnityEngine;
+using static Utils;
 
-public class SpawnManager : MonoBehaviour
+public class SpawnManager
 {
     #region Fields
-    private static readonly Vector3[] footboards = new Vector3[9]
+    public readonly Vector3[] footboards = new Vector3[9]
     {
         new Vector3(-3, 0, -4), new Vector3(0, 0, -4), new Vector3(3, 0, -4),
         new Vector3(-3, 0, 4), new Vector3(0, 0, 4), new Vector3(3, 0, 4),
@@ -25,9 +26,9 @@ public class SpawnManager : MonoBehaviour
     }
 
     #region Spawn Character By ID Methods
-    public GameObject CharacterByID(CharacterID id, int position, Transform parent = null)
+    public Character CharacterByID(CharacterID id, int position, Transform parent = null)
     {
-        if ((CharacterID)0 == id)
+        if (id == (CharacterID)0)
         {
             return null;
         }
@@ -50,12 +51,12 @@ public class SpawnManager : MonoBehaviour
         return CharacterByID(data, position, parent);
     }
 
-    public GameObject CharacterByID(CharacterData data, int position, Transform parent = null)
+    public Character CharacterByID(CharacterData data, int position, Transform parent = null)
     {
         GameObject character = Managers.Resource.Instantiate(data.Prefab, parent);
         character.transform.position = footboards[position];
 
-        return character;
+        return character.GetCharacterInGameObject<Character>();
     }
     #endregion
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using UnityEngine;
+using static Utils;
 
 public class StageManager : MonoBehaviour
 {
@@ -12,39 +13,44 @@ public class StageManager : MonoBehaviour
     #endregion
 
     #region Fields
-    private const int PREVIEW = 1, MAX_CHARACTER_COUNT = 3;
+    public readonly int PREVIEW = 1;
+    public const int MAX_CHARACTER_COUNT = 3;
 
-    [HideInInspector] public ReactiveProperty<int> turnCount;
-    [HideInInspector] public ReactiveProperty<CharacterID> turnCharacterID;
-    [HideInInspector] public ReactiveProperty<Character> turnCharacter;
+    [HideInInspector] public ReactiveProperty<bool> isPlayerTurn { get; private set; }
+    [HideInInspector] public ReactiveProperty<bool> isEnemyTurn { get; private set; }
 
-    [HideInInspector] public ReactiveProperty<Character> selectCharacter;
+    [HideInInspector] public ReactiveProperty<int> turnCount { get; set; }
+    [HideInInspector] public ReactiveProperty<CharacterID> turnCharacterID { get; set; }
+    [HideInInspector] public ReactiveProperty<Character> turnCharacter { get; set; }
 
     private GameObject dungeon, spawnPoint;
     #endregion
 
     public void Init()
     {
-        players = enemies = previews = new List<Character>();
+        players = new List<Character>();
+        enemies = new List<Character>();
+        previews = new List<Character>();
         turnQueue = new Queue<Dictionary<CharacterID, Character>>();
 
-        turnCount = new ReactiveProperty<int>(0);
+        isPlayerTurn = new ReactiveProperty<bool>();
+        isEnemyTurn = new ReactiveProperty<bool>();
+
+        turnCount = new ReactiveProperty<int>();
         turnCharacterID = new ReactiveProperty<CharacterID>();
         turnCharacter = new ReactiveProperty<Character>();
-
-        selectCharacter = new ReactiveProperty<Character>();
     }
 
     #region Create Dungeon In Stage Methods
     public void CreateDungeon(StageID id)
     {
-        dungeon = Managers.Resource.Instantiate(Managers.Data.Game[(int)GameAssetName.Dungeon].Prefab);
-        spawnPoint = Managers.Resource.Instantiate(Managers.Data.Game[(int)GameAssetName.Spawn].Prefab);
+        dungeon = Managers.Resource.Instantiate(Managers.Data.GamePrefab[GamePrefabID.Dungeon].Prefab);
+        spawnPoint = Managers.Resource.Instantiate(Managers.Data.GamePrefab[GamePrefabID.Spawn].Prefab);
 
-        players = ResetCharacter(players, 0, new CharacterID[MAX_CHARACTER_COUNT] { 
-            (CharacterID)1001, 
-            (CharacterID)0,
-            (CharacterID)1002 
+        players = ResetCharacter(players, 0, new CharacterID[MAX_CHARACTER_COUNT] {
+            (CharacterID)1001,
+            (CharacterID)1002,
+            (CharacterID)1003
         });
         enemies = ResetCharacter(enemies, 1, new CharacterID[MAX_CHARACTER_COUNT] {
             (CharacterID)Managers.Data.Stage[id].Left,
@@ -56,6 +62,13 @@ public class StageManager : MonoBehaviour
             (CharacterID)Managers.Data.Stage[id + PREVIEW].Center,
             (CharacterID)Managers.Data.Stage[id + PREVIEW].Right
         });
+
+        turnCount.Value = 0;
+    }
+
+    public void NextDungeon(StageID id)
+    {
+
     }
 
     private List<Character> ResetCharacter(List<Character> characters, int type, params CharacterID[] id)
@@ -78,16 +91,15 @@ public class StageManager : MonoBehaviour
 
         for (int index = 0; index < id.Length; ++index)
         {
-            GameObject spawnObject = Managers.Spawn.CharacterByID(id[index], position + index);
+            Character character = Managers.Spawn.CharacterByID(id[index], position + index);
 
-            if (spawnObject == null)
+            if (character == null)
             {
                 continue;
             }
 
             if (type < 2)
             {
-                Character character = spawnObject.GetComponentAssert<Character>();
                 character.Init(id[index]);
                 characters.Add(character);
 
@@ -99,53 +111,39 @@ public class StageManager : MonoBehaviour
     }
     #endregion
 
-    //#region Update Turn In Stage Methods
-    //private void UpdateTurnAsObservable()
-    //{
-    //    this.UpdateAsObservable()
-    //        .Where(_ => true == isTurnSequenceStart.Value)
-    //        .Subscribe(_ =>
-    //        {
-    //            isTurnSequenceStart.Value = false;
+    #region Update Turn In Stage Methods
+    public void UpdateTurnAsObservable()
+    {
+        turnCount.Subscribe(value =>
+        {
+            KeyValuePair<CharacterID, Character> dictionary = turnQueue.Dequeue().First();
 
-    //            Character character = NextCharacter();
+            turnCharacterID.Value = dictionary.Key;
+            turnCharacter.Value = dictionary.Value;
 
-    //            if (IsPlayerType(character))
-    //            {
-    //                PlayerTurn();
-    //            }
-    //            else
-    //            {
-    //                EnemyTurn();
-    //            }
-    //        });
-    //}
+            Type type = dictionary.Value.GetCharacterInGameObject<Character>().GetType();
 
-    //private Character NextCharacter()
-    //{
-    //    KeyValuePair<CharacterID, Character> dictionary = turnQueue.Dequeue().First();
+            if (type == typeof(Player))
+            {
+                isPlayerTurn.Value = true;
+                isEnemyTurn.Value = false;
+            }
 
-    //    turnCharacterID.Value = dictionary.Key;
-    //    turnCharacter.Value = dictionary.Value;
-    //    turnQueue.Enqueue(Utils.ReturnDictionary(dictionary.Key, dictionary.Value));
+            if (type == typeof(Enemy))
+            {
+                isEnemyTurn.Value = true;
+                isPlayerTurn.Value = false;
+            }
 
-    //    return turnCharacter.Value;
-    //}
+            Debug.Log($"[StageManager] : 현재 턴 캐릭터 = {turnCharacter.Value.characterName}, {turnCharacter.Value}");
 
-    //private void PlayerTurn()
-    //{
-    //    UpdateClickCharacter();
-    //}
+            turnQueue.Enqueue(ReturnDictionary(dictionary.Key, dictionary.Value));
+        });
+    }
 
-    //private void EnemyTurn()
-    //{
-    //    Debug.Log($"{turnCharacter.Value}");
-    //    ResetUpdateTurn();
-    //}
-
-    //private void ResetUpdateTurn()
-    //{
-    //    isTurnSequenceStart.Value = true;
-    //}
-    //#endregion
+    public void NextTurn()
+    {
+        Managers.Stage.turnCount.Value += 1;
+    }
+    #endregion
 }

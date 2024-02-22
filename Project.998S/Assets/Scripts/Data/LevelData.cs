@@ -1,6 +1,6 @@
 public enum Level
 {
-    Index = 0,
+    None = 0,
 }
 
 public class LevelData
