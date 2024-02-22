@@ -35,9 +35,23 @@ public static class Extensions
     public static T GetCharacterInGameObject<T>(this Character character)
         => Utils.GetCharacterInGameObject<T>(character.gameObject);
 
+    /// <summary>
+    /// 게임 오브젝트에서 캐릭터 오브젝트의 타입을 반환하기 위한 메소드입니다.
+    /// </summary>
+    /// <param name="gameObject">게임 오브젝트</param>
     public static Type GetCharacterTypeInGameObject<T>(this GameObject gameObject)
         => Utils.GetCharacterTypeInGameObject<T>(gameObject);
 
     public static Type GetCharacterTypeInGameObject<T>(this Character character)
         => Utils.GetCharacterTypeInGameObject<T>(character.gameObject);
+
+    /// <summary>
+    /// 게임 오브젝트에서 캐릭터 오브젝트의 사망 여부를 반환하기 위한 메소드입니다.
+    /// </summary>
+    /// <param name="gameObject"></param>
+    public static bool IsCharacterDead(this GameObject gameObject)
+        => Utils.IsCharacterDead(gameObject);
+
+    public static bool IsCharacterDead(this Character character)
+        => Utils.IsCharacterDead(character.gameObject);
 }

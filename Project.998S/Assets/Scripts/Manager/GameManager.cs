@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
         GameObject go = new GameObject(nameof(Controller));
         go.AddComponent<PlayerController>();
         go.AddComponent<EnemyController>();
+
         GamePrefabData data = Managers.Data.GamePrefab[GamePrefabID.Highlight];
 
         GamePlay((StageID)1 , data);
@@ -39,9 +40,10 @@ public class GameManager : MonoBehaviour
                 return;
             }
 
-            Debug.Log($"[GameManager] ¼±ÅÃµÈ Ä³¸¯ÅÍ : {selectCharacter.Value.gameObject.transform.position.x}, {selectCharacter.Value}");
+            Debug.Log($"[GameManager] Selected character : {selectCharacter.Value.gameObject.transform.position.x}, {selectCharacter.Value}");
 
             SelectTarget(character);
+            Managers.Stage.turnCharacter.Value.LookAtTarget(character.transform);
             target.gameObject.SetActive(true);
         });
     }
