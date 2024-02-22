@@ -1,35 +1,47 @@
 using System;
+using UniRx;
 using UnityEngine;
 
 public abstract class Controller : MonoBehaviour
 {
-    #region Fields
-    public const float ROTATION_SPEED = 5f;
+    protected Target target;
 
-    [HideInInspector] public IDisposable updateObserver { get; set; }
-    #endregion
+    protected IDisposable updateActionObserver;
+
+    public void Start()
+        => Init();
 
     public virtual void Init()
     {
+        target = Managers.Game.target;
 
+        UpdateActionAsObservable();
     }
 
-    public void SelectTarget(Character character)
+    protected abstract void UpdateActionAsObservable();
+
+    protected abstract GameObject GetSelectGameObject();
+
+    protected Type CheckCharacterType(GameObject gameObject)
     {
-        if (Managers.Game.Target.transform.position == character.transform.position)
+        Type type = gameObject.GetCharacterTypeInGameObject<Character>();
+
+        if (type == typeof(Player))
         {
-            return;
+            return ReturnCasePlayerType(gameObject);
         }
 
-        Managers.Game.Target.transform.position = character.transform.position;
-        Managers.Game.Target.gameObject.SetActive(false);
+        if (type == typeof(Enemy))
+        {
+            return ReturnCaseEnemyType(gameObject);
+        }
+
+        return type;
     }
 
-    public void LookAtTarget(Character character)
-    {
-        Quaternion targetRotation = Quaternion.LookRotation(Managers.Game.Target.transform.position - character.transform.position);
-        Quaternion newRotation = Quaternion.Slerp(transform.rotation, targetRotation, ROTATION_SPEED * Time.deltaTime);
+    protected virtual Type ReturnCasePlayerType(GameObject gameObject)
+        => gameObject.GetType();
 
-        character.transform.rotation = newRotation;
-    }
+    protected virtual Type ReturnCaseEnemyType(GameObject gameObject)
+        => gameObject.GetType();
 }

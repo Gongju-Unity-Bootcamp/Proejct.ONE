@@ -8,7 +8,6 @@ using System.Linq;
 
 public class DataManager
 {
-    #region DataStructures
     public Dictionary<StageID, StageData> Stage { get; private set; }
     public Dictionary<CharacterID, CharacterData> Character { get; private set; }
     public List<LevelData> Level { get; private set; }
@@ -17,7 +16,6 @@ public class DataManager
     public Dictionary<GamePrefabID, GamePrefabData> GamePrefab { get; private set; }
     public Dictionary<EquipID, EquipData> Equip { get; private set; }
     public Dictionary<ConsumpID, ConsumpData> Consump { get; private set; }
-    #endregion
 
     public void Init()
     {
@@ -32,7 +30,6 @@ public class DataManager
 
     }
 
-    #region Parser Methods
     private List<T> ParseToList<T>([NotNull] string path)
     {
         using var reader = new StreamReader(path);
@@ -48,5 +45,4 @@ public class DataManager
 
         return csv.GetRecords<Item>().ToDictionary(keySelector);
     }
-    #endregion
 }

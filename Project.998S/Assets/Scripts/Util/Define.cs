@@ -3,7 +3,6 @@ using Random = UnityEngine.Random;
 
 public static class Define
 {
-    #region Fields
     public static class Table
     {
         public const string STAGE = "StageTable.csv";
@@ -26,9 +25,7 @@ public static class Define
 
         public const string TABLE = "Assets/Resources/Tables/";
     }
-    #endregion
 
-    #region Calculate Stat Methods
     public static class Calculate
     {
         public const float CRITICAL_MULTI = 0.5f, LEVEL_PER_HEALTH = 0.1f, LEVEL_PER_ATTACK = 1f;
@@ -130,5 +127,4 @@ public static class Define
             return false;
         }
     }
-    #endregion
 }
