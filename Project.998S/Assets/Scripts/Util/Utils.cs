@@ -14,7 +14,17 @@ public static class Utils
 
         if (false == recursive)
         {
-            return go.transform.FindAssert(name).GetComponentAssert<T>();
+            //return go.transform.FindAssert(name).GetComponentAssert<T>();
+            for(int i = 0; i < go.transform.childCount; i++)
+            {
+                Transform transform = go.transform.GetChild(i);
+                if(string.IsNullOrEmpty(name) || transform.name == name)
+                {
+                    T component = transform.GetComponent<T>();
+                    if (component != null)
+                        return component;
+                }
+            }
         }
         else
         {
