@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class Managers : MonoBehaviour
 {
-    #region Fields
     private static Managers Instance;
 
     public static DataManager Data { get; private set; }
@@ -13,7 +12,6 @@ public class Managers : MonoBehaviour
     public static SoundManager Sound { get; private set; }
     public static UIManager UI { get; private set; }
     public static GameManager Game { get; private set; }
-    #endregion
 
     private void Awake()
     {

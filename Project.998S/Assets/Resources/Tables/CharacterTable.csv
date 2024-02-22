@@ -1,5 +1,6 @@
 Id,Name,Prefab,Health,Attack,Defense,Luck,Focus,Level,Exp,SkillId,EquipId
 1001,흑빛갈기 늑대,enWolfB,30,1,0,50,3,1,0,2001,0
 1002,은빛갈기 늑대,enWolfA,30,1,0,50,3,1,0,2001,0
-1003,갑옷무장 늑대,null,30,1,0,50,3,1,0,2001,0
+1003,갑옷무장 늑대,enArmoredWolf,30,1,0,50,3,1,0,2001,0
 1004,성질 나쁜 닭,enCockatriceA,20,1,0,40,3,1,5,2001,1
+1005,꿀 도둑,enBee1,20,1,0,40,3,1,5,2001,1
