@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
                 return;
             }
 
-            Debug.Log($"[GameManager] ¼±ÅÃµÈ Ä³¸¯ÅÍ : {selectCharacter.Value.gameObject.transform.position.x}, {selectCharacter.Value}");
+            Debug.Log($"[GameManager] Â¼Â±Ã…ÃƒÂµÃˆ Ã„Â³Â¸Â¯Ã…Ã : {selectCharacter.Value.gameObject.transform.position.x}, {selectCharacter.Value}");
 
             SelectTarget(character);
             target.gameObject.SetActive(true);
