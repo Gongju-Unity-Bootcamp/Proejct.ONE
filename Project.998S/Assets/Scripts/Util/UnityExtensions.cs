@@ -2,7 +2,6 @@ using UnityEngine;
 
 public static class UnityExtensions
 {
-    #region Methods
     /// <summary>
     /// 트랜스폼 Find() 참조 중에 발생하는 오류를 방지하기 위한 메소드입니다.
     /// </summary>
@@ -107,6 +106,4 @@ public static class UnityExtensions
 
         return newComponent;
     }
-
-    #endregion
 }

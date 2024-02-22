@@ -5,7 +5,6 @@ using UnityEngine;
 
 public static class Extensions
 {
-    #region Methods
     /// <summary>
     /// 관찰자의 이벤트를 등록하기 위한 메소드입니다.
     /// </summary>
@@ -41,5 +40,4 @@ public static class Extensions
 
     public static Type GetCharacterTypeInGameObject<T>(this Character character)
         => Utils.GetCharacterTypeInGameObject<T>(character.gameObject);
-    #endregion
 }

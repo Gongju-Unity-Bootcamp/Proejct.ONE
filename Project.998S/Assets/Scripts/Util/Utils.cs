@@ -5,7 +5,6 @@ using UnityEngine;
 
 public static class Utils
 {
-    #region Methods
     public static T FindChild<T>(GameObject go, string name = null, bool recursive = false) where T : Object
     {
         if (go == null)
@@ -21,9 +20,9 @@ public static class Utils
         {
             foreach (T component in go.GetComponentsInChildren<T>())
             {
-                if (false == string.IsNullOrEmpty(name) && component.name != name) 
-                { 
-                    continue; 
+                if (false == string.IsNullOrEmpty(name) && component.name != name)
+                {
+                    continue;
                 }
 
                 return component;
@@ -78,5 +77,12 @@ public static class Utils
     /// <param name="value">값</param>
     public static List<T> ReturnList<T>(T value)
         => new List<T>() { { value } };
-    #endregion
+
+    /// <summary>
+    /// 특정 타입의 배열 요소를 배열에 저장하기 위한 메소드입니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="values"></param>
+    public static T[] ReturnArray<T>(params T[] values)
+        => values;
 }

@@ -1,9 +1,7 @@
 using UnityEngine;
-using static Utils;
 
 public class SpawnManager
 {
-    #region Fields
     public readonly Vector3[] footboards = new Vector3[9]
     {
         new Vector3(-3, 0, -4), new Vector3(0, 0, -4), new Vector3(3, 0, -4),
@@ -12,12 +10,11 @@ public class SpawnManager
         new Vector3(-3, 0, 37.5f), new Vector3(0, 0, 37.5f), new Vector3(3, 0, 37.5f)
     };
 
-    public readonly int PLAYER_LEFT = 0, PLAYER_CENTER = 1, PLAYER_RIGHT = 2,
+    public const int PLAYER_LEFT = 0, PLAYER_CENTER = 1, PLAYER_RIGHT = 2,
                         ENEMY_LEFT = 3, ENEMY_CENTER = 4, ENEMY_RIGHT = 5,
                         PREVIEW_LEFT = 6, PREVIEW_CENTER = 7, PREVIEW_RIGHT = 8;
 
     private GameObject Entities, Mannequins;
-    #endregion
 
     public void Init()
     {
@@ -25,7 +22,6 @@ public class SpawnManager
         Mannequins = new GameObject(nameof(Mannequins));
     }
 
-    #region Spawn Character By ID Methods
     public Character CharacterByID(CharacterID id, int position, Transform parent = null)
     {
         if (id == (CharacterID)0)
@@ -37,13 +33,13 @@ public class SpawnManager
 
         switch (position)
         {
-            case >= 6:
+            case >= PREVIEW_LEFT:
                 parent = Mannequins.transform;
                 break;
-            case >= 3:
+            case >= ENEMY_LEFT:
                 parent = Entities.transform;
                 break;
-            case >= 0:
+            case >= PLAYER_LEFT:
                 parent = Entities.transform;
                 break;
         }
@@ -58,5 +54,4 @@ public class SpawnManager
 
         return character.GetCharacterInGameObject<Character>();
     }
-    #endregion
 }

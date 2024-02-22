@@ -2,36 +2,27 @@ using System;
 using System.Linq;
 using UniRx;
 using UnityEngine;
-using static Utils;
 
 public class PlayerController : Controller
 {
-    #region Fields
-    private IDisposable updateMouseObserver;
-    #endregion
-
     public override void Init()
     {
         base.Init();
 
         UpdatePlayerTurnAsObservable();
-        UpdateClickCharacterAsObservable();
     }
 
-    #region Update Player Turn Methods
     private void UpdatePlayerTurnAsObservable()
     {
         Managers.Stage.isPlayerTurn.Subscribe(_ =>
         {
-
+            
         });
     }
-    #endregion
 
-    #region Set Click Character Methods
-    private void UpdateClickCharacterAsObservable()
+    protected override void UpdateActionAsObservable()
     {
-        updateMouseObserver = Observable.EveryFixedUpdate()
+        updateActionObserver = Observable.EveryUpdate()
             .Where(_ => Input.GetMouseButtonDown(0)).Where(_ => Managers.Stage.isPlayerTurn.Value == true)
             .Select(_ => GetSelectGameObject())
             .Subscribe(gameObject =>
@@ -42,11 +33,10 @@ public class PlayerController : Controller
                 }
 
                 CheckCharacterType(gameObject);
-                Managers.Stage.NextTurn();
             });
     }
 
-    private GameObject GetSelectGameObject()
+    protected override GameObject GetSelectGameObject()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -59,16 +49,14 @@ public class PlayerController : Controller
         return null;
     }
 
-    private void CheckCharacterType(GameObject gameObject)
+    protected override Type ReturnCaseEnemyType(GameObject gameObject)
     {
-        Type type = gameObject.GetCharacterInGameObject<Character>().GetType();
+        Enemy enemy = gameObject.GetCharacterInGameObject<Enemy>();
+        target.gameObject.SetActive(true);
 
-        if (type == typeof(Enemy))
-        {
-            Enemy enemy = gameObject.GetCharacterInGameObject<Enemy>();
-            Managers.Game.selectCharacter.Value = enemy;
-            Managers.Game.Target.gameObject.SetActive(true);
-        }
+        Managers.Game.selectCharacter.Value = enemy.GetCharacterInGameObject<Character>();
+        Managers.Stage.NextTurn();
+
+        return enemy.GetCharacterTypeInGameObject<Enemy>();
     }
-    #endregion
 }

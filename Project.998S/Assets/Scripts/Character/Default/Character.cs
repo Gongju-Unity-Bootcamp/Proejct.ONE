@@ -1,10 +1,13 @@
 using System;
 using UniRx;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public abstract class Character : MonoBehaviour
 {
     #region Fields
+    public const float ROTATION_SPEED = 5f;
+
     protected int maxHealth;
     protected int maxAttack;
     protected int maxDefense;
@@ -27,7 +30,9 @@ public abstract class Character : MonoBehaviour
 
     protected Animator animator;
     protected Transform lookTransform;
+    protected Target target;
 
+    private IDisposable updateLookAtTargetObserver;
     private IDisposable updateStateChangeAsObservable;
     #endregion
 
@@ -48,8 +53,11 @@ public abstract class Character : MonoBehaviour
         characterName = Managers.Data.Character[id].Name;
         characterState.Value = CharacterState.Idle;
 
+        target = Managers.Game.target;
+
         InitStat(Managers.Data.Character[id]);
 
+        UpdateLookAtTarget();
         UpdateStateChangeAsObservable();
     }
 
@@ -66,6 +74,20 @@ public abstract class Character : MonoBehaviour
         currentDefense.Value = maxDefense;
         currentLuck.Value = maxLuck;
         currentFocus.Value = maxFocus;
+    }
+
+    protected void UpdateLookAtTarget()
+    {
+        updateLookAtTargetObserver = Observable.EveryUpdate()
+            .Where(_ => Managers.Game.selectCharacter.Value != null)
+            .Select(character => Managers.Game.selectCharacter.Value)
+            .Subscribe(character =>
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(target.transform.position - character.transform.position);
+                Quaternion newRotation = Quaternion.Slerp(transform.rotation, targetRotation, ROTATION_SPEED * Time.fixedDeltaTime);
+
+                character.transform.rotation = newRotation;
+            }).AddTo(this);
     }
 
     protected void UpdateStateChangeAsObservable()

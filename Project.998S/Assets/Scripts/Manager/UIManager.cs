@@ -3,16 +3,12 @@ using UnityEngine;
 
 public class UIManager
 {
-    #region DataStructures
     private Stack<UIPopup> popupStack;
-    #endregion
 
-    #region Fields
     private static readonly Vector3 DEFAULT_SCALE = Vector3.one;
     private int currentCanvasOrder = -20;
 
     private GameObject UIRoot;
-    #endregion
 
     public void Init()
     {
@@ -20,7 +16,6 @@ public class UIManager
         UIRoot = new GameObject(nameof(UIRoot));
     }
 
-    #region User Interface Manager Default Methods
     public void SetCanvas(GameObject go, bool sort = true)
     {
         Canvas canvas = go.GetComponentAssert<Canvas>();
@@ -48,9 +43,7 @@ public class UIManager
     }
 
     public T OpenSubItem<T>(Transform parent = null) where T : UISubItem
-    {
-        return SetupUI<T>(parent);
-    }
+        => SetupUI<T>(parent);
 
     private T SetupUI<T>(Transform parent = null) where T : UserInterface
     {
@@ -106,5 +99,4 @@ public class UIManager
             ClosePopupUI();
         }
     }
-    #endregion
 }

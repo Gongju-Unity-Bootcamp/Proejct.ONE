@@ -7,21 +7,16 @@ using Object = UnityEngine.Object;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine;
-using static Utils;
 
-#region Enums
 public enum ViewEvent
 {
     Click,
-    Enter,
+    Enter
 }
-#endregion
 
 public abstract class UserInterface : MonoBehaviour
 {
-    #region DataStructures
     private Dictionary<Type, Object[]> _objects = new Dictionary<Type, Object[]>();
-    #endregion
 
     public virtual void Init()
     {
@@ -29,8 +24,6 @@ public abstract class UserInterface : MonoBehaviour
     }
 
     private void Start() => Init();
-
-    #region User Interface Methods
 
     protected void Bind<T>(Type type) where T : Object
     {
@@ -124,8 +117,5 @@ public abstract class UserInterface : MonoBehaviour
     }
 
     public static void BindModelEvent<T>(ReactiveProperty<T> model, Action<T> action, Component component)
-    {
-        model.Subscribe(action).AddTo(component);
-    }
-    #endregion
+       => model.Subscribe(action).AddTo(component);
 }
