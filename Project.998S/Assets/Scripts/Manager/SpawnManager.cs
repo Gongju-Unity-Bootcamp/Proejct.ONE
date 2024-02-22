@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
+    //public GameObject TriangleContainer { get; private set; }
+
     #region Fields
     private static readonly Vector3[] footboards = new Vector3[9]
     {

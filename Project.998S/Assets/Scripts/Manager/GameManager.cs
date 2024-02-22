@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public PlayerController PlayerController;
     [HideInInspector] public ReactiveProperty<Player> selectPlayerCharacter { get; private set; }
     [HideInInspector] public ReactiveProperty<Enemy> selectEnemyCharacter { get; private set; }
+    public Character Character { get; private set; }
     private GameObject highlight;
     #endregion
 
