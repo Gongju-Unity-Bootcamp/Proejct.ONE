@@ -10,4 +10,5 @@ public class StageData
     public int Left { get; set; }
     public int Center { get; set; }
     public int Right { get; set; }
+    public RewardID IdReward { get; set; }
 }

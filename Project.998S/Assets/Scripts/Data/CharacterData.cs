@@ -1,3 +1,10 @@
+public enum CharacterIndex
+{
+    Left = 0, 
+    Center, 
+    Right
+}
+
 public enum CharacterState
 {
     Idle,
@@ -9,15 +16,9 @@ public enum CharacterState
     LongSkill
 }
 
-public enum CharacterPosition
-{
-    Left = 0,
-    Center = 1,
-    Right = 2
-}
-
 public enum CharacterID
 {
+    None = 0,
     Index = 1000,
 }
 
@@ -31,7 +32,7 @@ public class CharacterData
     public int Defense { get; set; }
     public int Luck { get; set; }
     public int Focus { get; set; }
-    public Level Level { get; set; }
-    public SkillID SkillId { get; set; }
-    public EquipID EquipId { get; set; }
+    public LevelID IdLevel { get; set; }
+    public SkillID IdSkill { get; set; }
+    public EquipmentID IdEquipment { get; set; }
 }

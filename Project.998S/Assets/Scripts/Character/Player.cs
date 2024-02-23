@@ -11,8 +11,9 @@ public class Player : Character
 
     public override void Die()
     {
+        animator.SetTrigger(AnimatorParameter.Dead);
         animator.SetBool(AnimatorParameter.Death, true);
-        characterState.Value = CharacterState.Death;
+        ChangeCharacterState(CharacterState.Death);
     }
 
     protected void InitInventory(CharacterData data)

@@ -1,12 +1,11 @@
 using UniRx;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     [HideInInspector] public ReactiveProperty<int> round { get; set; }
     [HideInInspector] public ReactiveProperty<Character> selectCharacter { get; set; }
-    [HideInInspector] public Target target { get; set; }
+    [HideInInspector] public GameObject target { get; set; }
 
     public void Init()
     {
@@ -16,31 +15,21 @@ public class GameManager : MonoBehaviour
         go.AddComponent<PlayerController>();
         go.AddComponent<EnemyController>();
 
-        GamePrefabData data = Managers.Data.GamePrefab[GamePrefabID.Highlight];
+        PrefabData data = Managers.Data.Prefab[(int)PrefabID.Highlight];
 
-        //Managers.Stage.enemies[0].currentHealth.Value = 0;
-        //Managers.Stage.enemies[0].currentAttack.Value = 0;
-        //Managers.Stage.players[0].currentHealth.Value = 0;
-        //Managers.Stage.players[0].currentAttack.Value = 0;
-        
-
-        GamePlay((StageID)1 , data);
-
-        Managers.UI.OpenPopup<HudPopup>();
+        GameStart((StageID)1 , data);
     }
 
-    public void GamePlay(StageID id, GamePrefabData data)
+    public void GameStart(StageID id, PrefabData data)
     {
         Managers.Stage.CreateDungeon(id);
         Managers.Stage.UpdateTurnAsObservable();
         UpdateSelectCharacterAsObservable(data);
-
-        
     }
 
-    private void UpdateSelectCharacterAsObservable(GamePrefabData data)
+    private void UpdateSelectCharacterAsObservable(PrefabData data)
     {
-        target = CreateHighlight(data).GetComponentAssert<Target>();
+        target = Managers.Resource.Instantiate(data.Prefab);
         target.transform.position = Managers.Spawn.footboards[SpawnManager.ENEMY_CENTER];
         selectCharacter.Value = Managers.Stage.enemies[Managers.Stage.PREVIEW].GetCharacterInGameObject<Character>();
 
@@ -54,8 +43,8 @@ public class GameManager : MonoBehaviour
             Debug.Log($"[GameManager] Selected character : {selectCharacter.Value.gameObject.transform.position.x}, {selectCharacter.Value}");
 
             SelectTarget(character);
-            Managers.Stage.turnCharacter.Value.LookAtTarget(character.transform);
             target.gameObject.SetActive(true);
+            Managers.Stage.turnCharacter.Value.LookAtTarget(character.transform);
         });
     }
     public void SelectTarget(Character character)
@@ -63,9 +52,4 @@ public class GameManager : MonoBehaviour
         target.transform.position = character.transform.position;
         target.gameObject.SetActive(false);
     }
-
-    private GameObject CreateHighlight(GamePrefabData data)
-        => Managers.Resource.Instantiate(data.Prefab);
-
-
 }

@@ -9,7 +9,8 @@ public class Enemy : Character
 
     public override void Die()
     {
+        animator.SetTrigger(AnimatorParameter.Dead);
         animator.SetBool(AnimatorParameter.Death, true);
-        characterState.Value = CharacterState.Death;
+        ChangeCharacterState(CharacterState.Death);
     }
 }
