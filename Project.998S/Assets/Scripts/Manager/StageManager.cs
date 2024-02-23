@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System;
 using UniRx;
 using UnityEngine;
 using static Utils;
@@ -19,13 +19,12 @@ public class StageManager : MonoBehaviour
     [HideInInspector] public ReactiveProperty<int> turnCount { get; set; }
     [HideInInspector] public ReactiveProperty<Character> turnCharacter { get; set; }
 
-    private GameObject dungeon, spawnPoint;
-
     public void Init()
     {
         players = new List<Character>();
         enemies = new List<Character>();
         previews = new List<Character>();
+
         turnQueue = new Queue<Character>();
 
         isPlayerTurn = new ReactiveProperty<bool>();
@@ -37,8 +36,11 @@ public class StageManager : MonoBehaviour
 
     public void CreateDungeon(StageID id)
     {
-        dungeon = Managers.Resource.Instantiate(Managers.Data.Prefab[(int)PrefabID.Dungeon].Prefab);
-        spawnPoint = Managers.Resource.Instantiate(Managers.Data.Prefab[(int)PrefabID.Spawn].Prefab);
+        string dungeonPrefabPath = Managers.Data.Prefab[(int)PrefabID.Dungeon].Prefab;
+        string spawnPrefabPath = Managers.Data.Prefab[(int)PrefabID.Spawn].Prefab;
+
+        Managers.Resource.Instantiate(dungeonPrefabPath);
+        Managers.Resource.Instantiate(spawnPrefabPath);
 
         players = ResetCharacter(PLAYER_INDEX, players, ReturnArray<CharacterID>
         (
@@ -52,7 +54,7 @@ public class StageManager : MonoBehaviour
             (CharacterID)Managers.Data.Stage[id].Center,
             (CharacterID)Managers.Data.Stage[id].Right
         ));
-        ResetCharacter(PREVIEW_INDEX, previews, ReturnArray<CharacterID>
+        previews = ResetCharacter(PREVIEW_INDEX, previews, ReturnArray<CharacterID>
         (
             (CharacterID)Managers.Data.Stage[id + PREVIEW].Left,
             (CharacterID)Managers.Data.Stage[id + PREVIEW].Center,
@@ -103,6 +105,14 @@ public class StageManager : MonoBehaviour
             }
         }
 
+        if (type == 0)
+        {
+            foreach (Character character in previews)
+            {
+                character.gameObject.SetActive(false);
+            }
+        }
+
         return characters;
     }
 
@@ -110,24 +120,21 @@ public class StageManager : MonoBehaviour
     {
         turnCount.Subscribe(value =>
         {
-            this.turnCharacter.Value = turnQueue.Dequeue();
+            turnCharacter.Value = turnQueue.Dequeue();
 
-            Character turnCharacter = this.turnCharacter.Value;
-
-            Type type = turnCharacter.GetCharacterTypeInGameObject<Character>();
-
-            if (turnCharacter.characterState.Value == CharacterState.Death)
+            if (true == turnCharacter.Value.IsCharacterDead())
             {
                 NextTurn();
 
                 return;
             }
 
+            Type type = turnCharacter.Value.GetCharacterTypeInGameObject<Character>();
             ChangeTurn(type == typeof(Player));
             //AllCharacterLookAtTarget(turnCharacter.Value.transform, type == typeof(Player));
 
-            Debug.Log($"[StageManager] : This character turn = {turnCharacter.characterName}, {turnCharacter}");
-            turnQueue.Enqueue(turnCharacter);
+            Debug.Log($"[StageManager] : This character turn = {turnCharacter.Value.characterName}, {turnCharacter.Value}");
+            turnQueue.Enqueue(turnCharacter.Value);
         });
     }
 
@@ -154,7 +161,7 @@ public class StageManager : MonoBehaviour
 
         foreach (Character character in characters)
         {
-            if (character.characterState.Value != CharacterState.Death)
+            if (false == character.IsCharacterDead())
             {
                 character.LookAtTarget(target);
             }

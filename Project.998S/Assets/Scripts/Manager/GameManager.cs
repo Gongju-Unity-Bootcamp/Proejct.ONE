@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
                 return;
             }
 
+            selectCharacter.Value.ChangeCharacterState(CharacterState.Idle);
             Debug.Log($"[GameManager] Selected character : {selectCharacter.Value.gameObject.transform.position.x}, {selectCharacter.Value}");
 
             SelectTarget(character);

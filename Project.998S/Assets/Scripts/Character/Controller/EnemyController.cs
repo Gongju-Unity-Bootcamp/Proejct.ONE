@@ -1,7 +1,6 @@
 using System.Linq;
 using UniRx;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public enum AgentState
 {
@@ -29,8 +28,10 @@ public class EnemyController : Controller
                     return;
                 }
 
-                if (character.characterState.Value == CharacterState.Death)
+                if (true == character.IsCharacterDead())
                 {
+                    Managers.Stage.NextTurn();
+
                     return;
                 }
 
@@ -50,7 +51,7 @@ public class EnemyController : Controller
     {
         Character turnCharacter = Managers.Stage.turnCharacter.Value;
 
-        target.gameObject.SetActive(true);
+        target.SetActive(true);
 
         turnCharacter.ChangeCharacterState(CharacterState.NormalAttack);
         player.GetDamage(turnCharacter.currentAttack.Value);

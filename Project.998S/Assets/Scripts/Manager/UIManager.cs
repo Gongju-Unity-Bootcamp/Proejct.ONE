@@ -14,12 +14,16 @@ public class UIManager
     {
         popupStack = new Stack<UIPopup>();
         UIRoot = new GameObject(nameof(UIRoot));
-        //Managers.UI.OpenSubItem<EnemyHUDHpSubItem>();
     }
 
-    public void SetCanvas(GameObject go, bool sort = true)
+    /// <summary>
+    /// 인터페이스 캔버스 컴포넌트를 등록하는 메소드입니다.
+    /// </summary>
+    /// <param name="gameObject">게임 오브젝트</param>
+    /// <param name="sort">정렬 여부</param>
+    public void SetCanvas(GameObject gameObject, bool sort = true)
     {
-        Canvas canvas = go.GetComponentAssert<Canvas>();
+        Canvas canvas = gameObject.GetComponentAssert<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.overrideSorting = true;
 
@@ -34,6 +38,11 @@ public class UIManager
         }
     }
 
+    /// <summary>
+    /// 서브 아이템 인터페이스를 생성하는 메소드입니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="parent">부모 트랜스폼</param>
     public T OpenPopup<T>(Transform parent = null) where T : UIPopup
     {
         T popup = SetupUI<T>(parent);
@@ -43,9 +52,20 @@ public class UIManager
         return popup;
     }
 
+    /// <summary>
+    /// 서브 아이템 인터페이스를 생성하는 메소드입니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="parent">부모 트랜스폼</param>
     public T OpenSubItem<T>(Transform parent = null) where T : UISubItem
         => SetupUI<T>(parent);
 
+    /// <summary>
+    /// 인터페이스를 생성하는 메소드입니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="parent">부모 트랜스폼</param>
+    /// <returns></returns>
     private T SetupUI<T>(Transform parent = null) where T : UserInterface
     {
         GameObject prefab = Managers.Resource.LoadPrefab(typeof(T).Name);
@@ -66,6 +86,10 @@ public class UIManager
         return go.GetComponentAssert<T>();
     }
 
+    /// <summary>
+    /// 스택에 등록된 하나의 팝업을 찾아 닫는 메소드입니다.
+    /// </summary>
+    /// <param name="popup">팝업 타입</param>
     public void ClosePopupUI(UIPopup popup)
     {
         if (popupStack.Count == 0)
@@ -81,6 +105,9 @@ public class UIManager
         ClosePopupUI();
     }
 
+    /// <summary>
+    /// 스택에 등록된 하나의 팝업을 꺼내 닫는 메소드입니다.
+    /// </summary>
     public void ClosePopupUI()
     {
         if (popupStack.Count == 0)
@@ -93,6 +120,9 @@ public class UIManager
         currentCanvasOrder -= 1;
     }
 
+    /// <summary>
+    /// 스택에 등록된 모든 팝업을 닫는 메소드입니다.
+    /// </summary>
     public void CloseAllPopupUI()
     {
         while (popupStack.Count > 0)

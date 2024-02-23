@@ -3,6 +3,13 @@ using Random = UnityEngine.Random;
 
 public static class Define
 {
+    public static class Keyword
+    {
+        public const string HOVER = "h";
+        public const string SLOT = "slot";
+        public const string INFO = "info";
+    }
+
     public static class Table
     {
         public const string STAGE = "StageTable.csv";
@@ -19,7 +26,8 @@ public static class Define
     public static class Path
     {
         public const string ANIMATOR = "Animators/";
-        public const string ICON = "Icons/";
+        public const string TEXTURE = "Textures/";
+        public const string IMAGE = "Images/";
         public const string MATERIAL = "Materials/";
         public const string PREFAB = "Prefabs/";
         public const string SPRITE = "Sprites/";
@@ -29,13 +37,13 @@ public static class Define
 
     public static class Calculate
     {
-        public const float CRITICAL_MULTI = 0.5f, LEVEL_PER_HEALTH = 0.1f, LEVEL_PER_ATTACK = 1f;
+        public const float CRITICAL_MULTI = 0.5f;
 
         /// <summary>
         /// 캐릭터의 생명력을 계산하기 위한 메소드입니다.
         /// </summary>
         /// <param name="health">캐릭터 고유 생명력</param>
-        /// <param name="level">캐릭터 현재 레벨</param>
+        /// <param name="healthPerLevel">캐릭터 현재 레벨</param>
         /// <returns></returns>
         public static int Health(int health, int healthPerLevel = 0)
             => health + healthPerLevel;
@@ -45,7 +53,7 @@ public static class Define
         /// </summary>
         /// <param name="attack">캐릭터 고유 공격력</param>
         /// <param name="equipAttack">착용 장비 공격력</param>
-        /// <param name="level">캐릭터 현재 레벨</param>
+        /// <param name="attackPerLevel">캐릭터 현재 레벨</param>
         /// <returns></returns>
         public static int Attack(int attack, int equipAttack = 0, int attackPerLevel = 0) 
             => attack + equipAttack + attackPerLevel;
@@ -61,12 +69,12 @@ public static class Define
         /// <summary>
         /// 캐릭터의 행운을 계산하기 위한 메소드입니다.
         /// </summary>
-        /// <param name="currentluck">캐릭터 고유 행운 또는 장비 정확도</param>
-        /// <param name="newluck">착용 장비 행운 또는 스킬 정확도</param>
+        /// <param name="currentLuck">캐릭터 고유 행운 또는 장비 정확도</param>
+        /// <param name="newLuck">착용 장비 행운 또는 스킬 정확도</param>
         /// <returns></returns>
-        public static int Luck(int currentluck, int newluck = 0, int luckPerLevel = 0)
+        public static int Luck(int currentLuck, int newLuck = 0, int luckPerLevel = 0)
         {
-            int result = currentluck + newluck + luckPerLevel;
+            int result = currentLuck + newLuck + luckPerLevel;
            
             switch (result)
             {

@@ -1,10 +1,10 @@
 using CsvHelper;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
+using System.IO;
+using System;
 
 public class DataManager
 {
@@ -31,7 +31,11 @@ public class DataManager
         Consumption = ParseToDictionary<ConsumptionID, ConsumptionData>(string.Concat(Define.Path.TABLE, Define.Table.CONSUMPTION), data => data.Id);
 
     }
-
+    /// <summary>
+    /// 리스트로 읽어들인 .csv 데이터 파일을 열거하여 반환하는 메소드입니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="path"></param>
     private List<T> ParseToList<T>([NotNull] string path)
     {
         using StreamReader reader = new StreamReader(path);
@@ -40,6 +44,13 @@ public class DataManager
         return csv.GetRecords<T>().ToList();
     }
 
+    /// <summary>
+    /// 딕셔너리로 읽어들인 .csv 데이터 파일을 파싱하여 반환하는 메소드입니다.
+    /// </summary>
+    /// <typeparam name="Key"></typeparam>
+    /// <typeparam name="Item"></typeparam>
+    /// <param name="path">데이터 파일 경로</param>
+    /// <param name="keySelector">키 선택</param>
     private Dictionary<Key, Item> ParseToDictionary<Key, Item>([NotNull] string path, Func<Item, Key> keySelector)
     {
         using StreamReader reader = new StreamReader(path);

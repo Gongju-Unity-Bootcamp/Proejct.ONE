@@ -7,7 +7,6 @@ public static class UnityExtensions
     /// </summary>
     /// <param name="transform">트랜스폼</param>
     /// <param name="name">이름</param>
-    /// <returns></returns>
     public static Transform FindAssert(this Transform transform, string name)
     {
         Transform newTransform = transform.Find(name);
@@ -22,7 +21,6 @@ public static class UnityExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="gameObject">게임 오브젝트</param>
-    /// <returns></returns>
     public static T GetComponentAssert<T>(this GameObject gameObject)
     {
         T component = gameObject.GetComponent<T>();
@@ -37,7 +35,6 @@ public static class UnityExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="transform">트랜스폼</param>
-    /// <returns></returns>
     public static T GetComponentAssert<T>(this Transform transform)
     {
         T component = transform.GetComponent<T>();
@@ -52,7 +49,6 @@ public static class UnityExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="component">컴포넌트</param>
-    /// <returns></returns>
     public static T GetComponentAssert<T>(this Component component)
     {
         T newComponent = component.GetComponent<T>();
@@ -67,7 +63,6 @@ public static class UnityExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="gameObject">게임 오브젝트</param>
-    /// <returns></returns>
     public static T GetComponentInChildrenAssert<T>(this GameObject gameObject)
     {
         T component = gameObject.GetComponentInChildren<T>();
@@ -82,7 +77,6 @@ public static class UnityExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="transform">트랜스폼</param>
-    /// <returns></returns>
     public static T GetComponentInChildrenAssert<T>(this Transform transform)
     {
         T component = transform.GetComponentInChildren<T>();
@@ -97,7 +91,6 @@ public static class UnityExtensions
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="component">컴포넌트</param>
-    /// <returns></returns>
     public static T GetComponentInChildrenAssert<T>(this Component component)
     {
         T newComponent = component.GetComponentInChildren<T>();
