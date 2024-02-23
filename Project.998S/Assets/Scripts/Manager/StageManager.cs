@@ -37,8 +37,8 @@ public class StageManager : MonoBehaviour
 
     public void CreateDungeon(StageID id)
     {
-        dungeon = Managers.Resource.Instantiate(Managers.Data.GamePrefab[GamePrefabID.Dungeon].Prefab);
-        spawnPoint = Managers.Resource.Instantiate(Managers.Data.GamePrefab[GamePrefabID.Spawn].Prefab);
+        dungeon = Managers.Resource.Instantiate(Managers.Data.Prefab[(int)PrefabID.Dungeon].Prefab);
+        spawnPoint = Managers.Resource.Instantiate(Managers.Data.Prefab[(int)PrefabID.Spawn].Prefab);
 
         players = ResetCharacter(PLAYER_INDEX, players, ReturnArray<CharacterID>
         (
@@ -110,15 +110,24 @@ public class StageManager : MonoBehaviour
     {
         turnCount.Subscribe(value =>
         {
-            turnCharacter.Value = turnQueue.Dequeue();
+            this.turnCharacter.Value = turnQueue.Dequeue();
 
-            Type type = turnCharacter.Value.GetCharacterTypeInGameObject<Character>();
+            Character turnCharacter = this.turnCharacter.Value;
+
+            Type type = turnCharacter.GetCharacterTypeInGameObject<Character>();
+
+            if (turnCharacter.characterState.Value == CharacterState.Death)
+            {
+                NextTurn();
+
+                return;
+            }
 
             ChangeTurn(type == typeof(Player));
+            //AllCharacterLookAtTarget(turnCharacter.Value.transform, type == typeof(Player));
 
-            Debug.Log($"[StageManager] : This character turn = {turnCharacter.Value.characterName}, {turnCharacter.Value}");
-
-            turnQueue.Enqueue(turnCharacter.Value);
+            Debug.Log($"[StageManager] : This character turn = {turnCharacter.characterName}, {turnCharacter}");
+            turnQueue.Enqueue(turnCharacter);
         });
     }
 
@@ -130,6 +139,28 @@ public class StageManager : MonoBehaviour
         Managers.Game.selectCharacter.Value = null;
     }
 
+    public void AllCharacterLookAtTarget(Transform target, bool isCharacterTurn)
+    {
+        List<Character> characters = new List<Character>();
+
+        if (isCharacterTurn)
+        {
+            characters = enemies;
+        }
+        else
+        {
+            characters = players;
+        }
+
+        foreach (Character character in characters)
+        {
+            if (character.characterState.Value != CharacterState.Death)
+            {
+                character.LookAtTarget(target);
+            }
+        }
+    }
+
     public void NextTurn() 
-        => Managers.Stage.turnCount.Value += 1;
+        => ++turnCount.Value;
 }

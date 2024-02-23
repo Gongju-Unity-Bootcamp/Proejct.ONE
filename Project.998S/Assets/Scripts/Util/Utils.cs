@@ -55,7 +55,7 @@ public static class Utils
     /// 게임 오브젝트에서 캐릭터 타입 오브젝트를 반환하기 위한 메소드입니다.
     /// </summary>
     /// <param name="gameObject">게임 오브젝트</param>
-    public static T GetCharacterInGameObject<T>(GameObject gameObject)
+    public static T GetCharacterInGameObject<T>(GameObject gameObject) where T : Object
     {
         T character;
 
@@ -71,7 +71,7 @@ public static class Utils
     /// 게임 오브젝트에서 캐릭터 오브젝트의 타입 반환하기 위한 메소드입니다.
     /// </summary>
     /// <param name="gameObject">게임 오브젝트</param>
-    public static Type GetCharacterTypeInGameObject<T>(GameObject gameObject)
+    public static Type GetCharacterTypeInGameObject<T>(GameObject gameObject) where T : Object
         => gameObject.GetCharacterInGameObject<T>().GetType();
 
     /// <summary>
@@ -112,7 +112,25 @@ public static class Utils
     /// 특정 타입의 배열 요소를 배열에 저장하기 위한 메소드입니다.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="values"></param>
+    /// <param name="values">값</param>
     public static T[] ReturnArray<T>(params T[] values)
         => values;
+
+    /// <summary>
+    /// 데이터 문자열 아이디 배열을 지정한 열거형 아이디 배열로 반환하기 위한 메소드입니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="IdEnum">문자열 IdEnum</param>
+    public static T[] ReferenceDataByIdEnum<T>(string IdEnum) where T : Enum
+    {
+        int[] splitByComma = Array.ConvertAll(IdEnum.Split("."), int.Parse);
+        T[] values = new T  [splitByComma.Length];
+
+        for (int index = 0; index < splitByComma.Length; ++index)
+        {
+            values[index] = (T)Enum.ToObject(typeof(T), splitByComma[index]);
+        }
+
+        return values;
+    }
 }

@@ -11,8 +11,10 @@ public class SpawnManager
     };
 
     public const int PLAYER_LEFT = 0, PLAYER_CENTER = 1, PLAYER_RIGHT = 2,
-                        ENEMY_LEFT = 3, ENEMY_CENTER = 4, ENEMY_RIGHT = 5,
-                        PREVIEW_LEFT = 6, PREVIEW_CENTER = 7, PREVIEW_RIGHT = 8;
+                     ENEMY_LEFT = 3, ENEMY_CENTER = 4, ENEMY_RIGHT = 5,
+                     PREVIEW_LEFT = 6, PREVIEW_CENTER = 7, PREVIEW_RIGHT = 8,
+        
+                     CHARACTER_LEFT = 0, CHARACTER_CENTER = 1, CHARACTER_RIGHT = 2;
 
     private GameObject Entities, Mannequins;
 

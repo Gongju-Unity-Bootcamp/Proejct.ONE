@@ -4,31 +4,39 @@ using UnityEngine;
 
 public abstract class Character : MonoBehaviour
 {
-    protected int maxHealth;
-    protected int maxAttack;
-    protected int maxDefense;
-    protected int maxLuck;
-    protected int maxFocus;
+    [HideInInspector] public ReactiveProperty<int> maxHealth { get; private set; }
+    [HideInInspector] public ReactiveProperty<int> maxAttack { get; private set; }
+    [HideInInspector] public ReactiveProperty<int> maxDefense { get; private set; }
+    [HideInInspector] public ReactiveProperty<int> maxLuck { get; private set; }
+    [HideInInspector] public ReactiveProperty<int> maxFocus { get; private set; }
 
-    protected ReactiveProperty<int> level;
-    protected ReactiveProperty<int> exp;
+    [HideInInspector] public ReactiveProperty<int> level { get; set; }
+    [HideInInspector] public ReactiveProperty<int> exp { get; set; }
 
-    [HideInInspector] public ReactiveProperty<int> currentHealth;
-    [HideInInspector] public ReactiveProperty<int> currentAttack;
-    [HideInInspector] public ReactiveProperty<int> currentDefense;
-    [HideInInspector] public ReactiveProperty<int> currentLuck;
-    [HideInInspector] public ReactiveProperty<int> currentFocus;
+    [HideInInspector] public ReactiveProperty<int> currentHealth { get; set; }
+    [HideInInspector] public ReactiveProperty<int> currentAttack { get; set; }
+    [HideInInspector] public ReactiveProperty<int> currentDefense { get; set; }
+    [HideInInspector] public ReactiveProperty<int> currentLuck { get; set; }
+    [HideInInspector] public ReactiveProperty<int> currentFocus { get; private set; }
 
     [HideInInspector] public CharacterID characterId;
     [HideInInspector] public string characterName;
 
-    [HideInInspector] public ReactiveProperty<CharacterState> characterState;
+    [HideInInspector] public ReactiveProperty<CharacterState> characterState { get; set; }
+
+    protected int uniqueHealth { get; private set; }
+    protected int uniqueAttack { get; private set; }
+    protected int uniqueDefense { get; private set; }
+    protected int uniqueLuck { get; private set; }
+    protected int uniqueFocus { get; private set; }
+
+    protected int maxLevel { get; private set; }
+    protected int requireExp { get; private set; }
 
     protected Animator animator;
     protected Transform lookTransform;
-    protected Target target;
 
-    private IDisposable updateStateChangeAsObservable;
+    private IDisposable updateLookAtTargetAsObservable;
 
     protected virtual void Awake()
     {
@@ -37,47 +45,78 @@ public abstract class Character : MonoBehaviour
 
     public virtual void Init(CharacterID id)
     {
+        maxHealth = new ReactiveProperty<int>();
+        maxAttack = new ReactiveProperty<int>();
+        maxDefense = new ReactiveProperty<int>();
+        maxLuck = new ReactiveProperty<int>();
+        maxFocus = new ReactiveProperty<int>();
+        
+        level = new ReactiveProperty<int>();
+        exp = new ReactiveProperty<int>();
+
         currentHealth = new ReactiveProperty<int>();
         currentAttack = new ReactiveProperty<int>();
         currentDefense = new ReactiveProperty<int>();
         currentLuck = new ReactiveProperty<int>();
         currentFocus = new ReactiveProperty<int>();
-        
-        level = new ReactiveProperty<int>();
-        exp = new ReactiveProperty<int>();
 
         characterId = id;
         characterName = Managers.Data.Character[id].Name;
+        characterState = new ReactiveProperty<CharacterState>();
         characterState.Value = CharacterState.Idle;
 
         InitStat(Managers.Data.Character[id]);
 
+        UpdateLookAtTargetAsObservable();
         UpdateStateChangeAsObservable();
     }
 
     public virtual void InitStat(CharacterData data)
     {
-        maxHealth = data.Health;
-        maxAttack = data.Attack;
-        maxDefense = data.Defense;
-        maxLuck = data.Luck;
-        maxFocus = data.Focus;
+        LevelData levelData = Managers.Data.Level[data.IdLevel];
 
-        level.Value = (int)data.Level;
-        LevelData levelData = Managers.Data.Level[(int)data.Level - 1];
+        uniqueHealth = data.Health;
+        uniqueAttack = data.Attack;
+        uniqueDefense = data.Defense;
+        uniqueLuck = data.Luck;
+        uniqueFocus = data.Focus;
 
-        exp.Value = levelData.Exp;
+        level.Value = (int)data.IdLevel;
+        exp.Value = 0;
 
-        currentHealth.Value = Define.Calculate.Health(maxHealth, level.Value);
-        currentAttack.Value = Define.Calculate.Attack(maxAttack, level.Value);
-        currentDefense.Value = Define.Calculate.Defense(maxDefense);
-        currentLuck.Value = Define.Calculate.Luck(maxLuck);
-        currentFocus.Value = maxFocus;
+        maxLevel = Managers.Data.Level.Count;
+        requireExp = levelData.Exp;
+
+        maxHealth.Value = Define.Calculate.Health(uniqueHealth, levelData.HealthPerLevel);
+        maxAttack.Value = Define.Calculate.Attack(uniqueAttack, levelData.AttackPerLevel);
+        maxDefense.Value = Define.Calculate.Defense(uniqueDefense, levelData.AttackPerLevel);
+        maxLuck.Value = Define.Calculate.Luck(uniqueLuck, levelData.LuckPerLevel);
+        maxFocus.Value = uniqueFocus;
+
+        currentHealth.Value = maxHealth.Value;
+        currentAttack.Value = maxAttack.Value;
+        currentDefense.Value = maxDefense.Value;
+        currentLuck.Value = maxLuck.Value;
+        currentFocus.Value = maxFocus.Value;
+    }
+
+    protected void UpdateLookAtTargetAsObservable()
+    {
+        updateLookAtTargetAsObservable = Observable.EveryUpdate()
+            .Where(_ => lookTransform != null)
+            .Subscribe(_ => 
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(lookTransform.position - transform.position);
+                Quaternion newRotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
+
+                transform.rotation = newRotation;
+            }).AddTo(this);
     }
 
     protected void UpdateStateChangeAsObservable()
     {
         characterState.Where(_ => characterState != null)
+            .Where(state => state != CharacterState.Death)
             .Subscribe(state =>
             {
                 switch (state)
@@ -98,19 +137,27 @@ public abstract class Character : MonoBehaviour
                     case CharacterState.LongSkill:
                         break;
                 }
-            });
+            }).AddTo(this);
+    }
+
+    public void ChangeCharacterState(CharacterState state)
+    {
+        if (characterState.Value != CharacterState.Death)
+        {
+            characterState.Value = state;
+        }
     }
 
     public void LookAtTarget(Transform target)
-        => transform.LookAt(target);
+        => lookTransform = target;
 
     public virtual void GetDamage(int damage)
     {
-        characterState.Value = CharacterState.Damage;
+        ChangeCharacterState(CharacterState.Damage);
 
         if (currentHealth.Value > 0)
         {
-            currentHealth.Value -= Define.Calculate.Damage(currentAttack.Value, currentDefense.Value, currentLuck.Value);
+            currentHealth.Value -= damage;
 
             return;
         }

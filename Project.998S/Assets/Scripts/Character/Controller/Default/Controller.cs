@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using UniRx;
+using Random = UnityEngine.Random;
 using UnityEngine;
 
 public abstract class Controller : MonoBehaviour
 {
-    protected Target target;
+    protected GameObject target;
     protected int[] targetFindSequence;
+    protected bool[] isCharacterDead;
 
     protected IDisposable updateActionObserver;
 
@@ -17,16 +20,18 @@ public abstract class Controller : MonoBehaviour
         target = Managers.Game.target;
         targetFindSequence = new int[StageManager.MAX_CHARACTER_COUNT]
         { 
-            SpawnManager.PLAYER_CENTER, 
-            SpawnManager.PLAYER_LEFT, 
-            SpawnManager.PLAYER_RIGHT 
+            SpawnManager.CHARACTER_CENTER, 
+            SpawnManager.CHARACTER_LEFT, 
+            SpawnManager.CHARACTER_RIGHT 
         };
+        isCharacterDead = new bool[StageManager.MAX_CHARACTER_COUNT];
+
         UpdateActionAsObservable();
     }
 
     protected abstract void UpdateActionAsObservable();
 
-    protected abstract GameObject GetSelectGameObject();
+    protected abstract Character GetSelectCharacter();
 
     protected virtual void UpdateTurnAsObservable(ReactiveProperty<bool> isCharacterTurn)
     {
@@ -35,34 +40,47 @@ public abstract class Controller : MonoBehaviour
             .Subscribe(_ =>
             {
                 SelectCharacterAtFirstTurn();
-            });
+            }).AddTo(this);
     }
 
     protected virtual void SelectCharacterAtFirstTurn()
     {
-
+        
     }
 
-    protected Type CheckCharacterType(GameObject gameObject)
+    protected virtual void CheckCharacterType(Character character, Type targetType)
     {
-        Type type = gameObject.GetCharacterTypeInGameObject<Character>();
-
-        if (type == typeof(Player))
+        if (character.GetType() != targetType)
         {
-            return ReturnCasePlayerType(gameObject);
+            return;
         }
 
-        if (type == typeof(Enemy))
-        {
-            return ReturnCaseEnemyType(gameObject);
-        }
-
-        return type;
+        Managers.Game.selectCharacter.Value = character;
+        ReturnCheckCharacterType(character);
     }
 
-    protected virtual Type ReturnCasePlayerType(GameObject gameObject)
-        => gameObject.GetType();
+    protected virtual void ReturnCheckCharacterType(Character character)
+    {
 
-    protected virtual Type ReturnCaseEnemyType(GameObject gameObject)
-        => gameObject.GetType();
+    }
+
+    private int count;
+
+    public Character GetRandomCharacterInList(List<Character> characters)
+    {
+        if (count > characters.Count)
+        {
+            count = 0;
+            return null;
+        }
+
+        int random = Random.Range(0, characters.Count);
+
+        if (characters[random].characterState.Value != CharacterState.Death)
+        {
+            return characters[random].GetCharacterInGameObject<Character>();
+        }
+
+        return GetRandomCharacterInList(characters);
+    }
 }

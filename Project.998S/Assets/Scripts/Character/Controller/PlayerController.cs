@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using UniRx;
 using UnityEngine;
@@ -16,34 +15,34 @@ public class PlayerController : Controller
     {
         updateActionObserver = Observable.EveryUpdate()
             .Where(_ => Input.GetMouseButtonDown(0)).Where(_ => Managers.Stage.isPlayerTurn.Value == true)
-            .Select(_ => GetSelectGameObject())
-            .Subscribe(gameObject =>
+            .Select(_ => GetSelectCharacter())
+            .Subscribe(character =>
             {
-                if (gameObject == null)
+                if (character == null)
                 {
                     return;
                 }
 
-                CheckCharacterType(gameObject);
-            });
+                if (character.characterState.Value == CharacterState.Death)
+                {
+                    return;
+                }
+
+                CheckCharacterType(character, typeof(Enemy));
+            }).AddTo(this);
     }
 
-    protected override GameObject GetSelectGameObject()
+    protected override Character GetSelectCharacter()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         if (true == Physics.Raycast(ray, out hit))
         {
-            return hit.collider.gameObject;
+            return hit.collider.gameObject.GetCharacterInGameObject<Character>();
         }
 
         return null;
-    }
-
-    protected override void UpdateTurnAsObservable(ReactiveProperty<bool> isCharacterTurn)
-    {
-        base.UpdateTurnAsObservable(isCharacterTurn);
     }
 
     protected override void SelectCharacterAtFirstTurn()
@@ -51,16 +50,17 @@ public class PlayerController : Controller
 
     }
 
-    protected override Type ReturnCaseEnemyType(GameObject gameObject)
+    protected override void ReturnCheckCharacterType(Character enemy)
     {
-        Enemy enemy = gameObject.GetCharacterInGameObject<Enemy>();
+        Character turnCharacter = Managers.Stage.turnCharacter.Value;
+
         target.gameObject.SetActive(true);
 
-        Managers.Stage.turnCharacter.Value.characterState.Value = CharacterState.NormalAttack;
-        Managers.Game.selectCharacter.Value = enemy.GetCharacterInGameObject<Character>();
-        Managers.Stage.turnCharacter.Value.characterState.Value = CharacterState.Idle;
-        Managers.Stage.NextTurn();
+        turnCharacter.ChangeCharacterState(CharacterState.NormalAttack);
+        enemy.GetDamage(turnCharacter.currentAttack.Value);
+        Debug.Log($"{enemy} Health : {enemy.currentHealth.Value}");
+        turnCharacter.ChangeCharacterState(CharacterState.Idle);
 
-        return enemy.GetCharacterTypeInGameObject<Enemy>();
+        Managers.Stage.NextTurn();
     }
 }

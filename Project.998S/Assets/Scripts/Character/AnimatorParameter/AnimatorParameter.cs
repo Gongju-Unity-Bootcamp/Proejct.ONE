@@ -2,6 +2,7 @@ using UnityEngine;
 
 public static class AnimatorParameter
 {
+    public static readonly int Dead = Animator.StringToHash("Dead");
     public static readonly int Death = Animator.StringToHash("Death");
     public static readonly int Dodge = Animator.StringToHash("Dodge");
     public static readonly int NormalAttack = Animator.StringToHash("NAttack");

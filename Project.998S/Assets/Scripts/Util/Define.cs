@@ -6,13 +6,14 @@ public static class Define
     public static class Table
     {
         public const string STAGE = "StageTable.csv";
+        public const string REWARD = "RewardTable.csv";
         public const string CHARACTER = "CharacterTable.csv";
         public const string LEVEL = "LevelTable.csv";
         public const string SKILL = "SkillTable.csv";
         public const string EFFECT = "EffectTable.csv";
-        public const string GAMEPREFAB = "GamePrefabTable.csv";
-        public const string EQUIP = "EquipTable.csv";
-        public const string CONSUMP = "ConsumpTable.csv";
+        public const string PREFAB = "PrefabTable.csv";
+        public const string EQUIPMENT = "EquipmentTable.csv";
+        public const string CONSUMPTION = "ConsumptionTable.csv";
     }
 
     public static class Path
@@ -36,26 +37,26 @@ public static class Define
         /// <param name="health">캐릭터 고유 생명력</param>
         /// <param name="level">캐릭터 현재 레벨</param>
         /// <returns></returns>
-        public static int Health(int health, int level = 1) 
-            => health + level + Convert.ToInt32(LEVEL_PER_HEALTH * level);
+        public static int Health(int health, int healthPerLevel = 0)
+            => health + healthPerLevel;
 
         /// <summary>
         /// 캐릭터의 공격력을 계산하기 위한 메소드입니다.
         /// </summary>
         /// <param name="attack">캐릭터 고유 공격력</param>
-        /// <param name="weaponAttack">착용 장비 공격력</param>
+        /// <param name="equipAttack">착용 장비 공격력</param>
         /// <param name="level">캐릭터 현재 레벨</param>
         /// <returns></returns>
-        public static int Attack(int attack, int equipAttack = 0, int level = 1) 
-            => attack + equipAttack + Convert.ToInt32(LEVEL_PER_ATTACK * level);
+        public static int Attack(int attack, int equipAttack = 0, int attackPerLevel = 0) 
+            => attack + equipAttack + attackPerLevel;
 
         /// <summary>
         /// 캐릭터의 방어력을 계산하기 위한 메소드입니다.
         /// </summary>
         /// <param name="defense">캐릭터 고유 방어력</param>
         /// <returns></returns>
-        public static int Defense(int defense, int equipDefense = 0) 
-            => defense + equipDefense < 0 ? 0 : equipDefense;
+        public static int Defense(int defense, int equipDefense = 0, int defensePerLevel = 0) 
+            => defense + equipDefense + defensePerLevel < 0 ? 0 : equipDefense;
 
         /// <summary>
         /// 캐릭터의 행운을 계산하기 위한 메소드입니다.
@@ -63,9 +64,9 @@ public static class Define
         /// <param name="currentluck">캐릭터 고유 행운 또는 장비 정확도</param>
         /// <param name="newluck">착용 장비 행운 또는 스킬 정확도</param>
         /// <returns></returns>
-        public static int Luck(int currentluck, int newluck = 0)
+        public static int Luck(int currentluck, int newluck = 0, int luckPerLevel = 0)
         {
-            int result = currentluck + newluck;
+            int result = currentluck + newluck + luckPerLevel;
            
             switch (result)
             {

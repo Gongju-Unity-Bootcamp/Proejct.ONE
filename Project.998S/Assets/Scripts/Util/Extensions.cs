@@ -1,6 +1,7 @@
 using System;
 using UniRx;
 using UnityEngine.EventSystems;
+using Object = UnityEngine.Object;
 using UnityEngine;
 
 public static class Extensions
@@ -29,20 +30,20 @@ public static class Extensions
     /// 게임 오브젝트에서 캐릭터 타입 오브젝트를 반환하기 위한 메소드입니다.
     /// </summary>
     /// <param name="gameObject">게임 오브젝트</param>
-    public static T GetCharacterInGameObject<T>(this GameObject gameObject)
+    public static T GetCharacterInGameObject<T>(this GameObject gameObject) where T : Object
         => Utils.GetCharacterInGameObject<T>(gameObject);
 
-    public static T GetCharacterInGameObject<T>(this Character character)
+    public static T GetCharacterInGameObject<T>(this Character character) where T : Object
         => Utils.GetCharacterInGameObject<T>(character.gameObject);
 
     /// <summary>
     /// 게임 오브젝트에서 캐릭터 오브젝트의 타입을 반환하기 위한 메소드입니다.
     /// </summary>
     /// <param name="gameObject">게임 오브젝트</param>
-    public static Type GetCharacterTypeInGameObject<T>(this GameObject gameObject)
+    public static Type GetCharacterTypeInGameObject<T>(this GameObject gameObject) where T : Object
         => Utils.GetCharacterTypeInGameObject<T>(gameObject);
 
-    public static Type GetCharacterTypeInGameObject<T>(this Character character)
+    public static Type GetCharacterTypeInGameObject<T>(this Character character) where T : Object
         => Utils.GetCharacterTypeInGameObject<T>(character.gameObject);
 
     /// <summary>

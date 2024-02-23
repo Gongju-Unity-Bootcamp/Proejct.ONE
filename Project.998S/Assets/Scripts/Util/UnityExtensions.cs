@@ -18,7 +18,7 @@ public static class UnityExtensions
     }
 
     /// <summary>
-    /// 게임오브젝트 GetComponent<>() 참조 중에 발생하는 오류를 방지하기 위한 메소드입니다.
+    /// 게임 오브젝트 GetComponent<>() 참조 중에 발생하는 오류를 방지하기 위한 메소드입니다.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="gameObject">게임 오브젝트</param>
@@ -63,7 +63,7 @@ public static class UnityExtensions
     }
 
     /// <summary>
-    /// 게임오브젝트 GetComponentInChildren<>() 참조 중에 발생하는 오류를 방지하기 위한 메소드입니다.
+    /// 게임 오브젝트 GetComponentInChildren<>() 참조 중에 발생하는 오류를 방지하기 위한 메소드입니다.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="gameObject">게임 오브젝트</param>

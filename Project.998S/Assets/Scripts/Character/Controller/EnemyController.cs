@@ -1,8 +1,7 @@
-using System;
 using System.Linq;
 using UniRx;
-using Random = UnityEngine.Random;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public enum AgentState
 {
@@ -11,8 +10,6 @@ public enum AgentState
 
 public class EnemyController : Controller
 {
-    private int randomIndex;
-
     public override void Init()
     {
         base.Init();
@@ -24,49 +21,42 @@ public class EnemyController : Controller
     {
         updateActionObserver = Observable.EveryUpdate()
             .Where(_ => Input.GetMouseButtonDown(1)).Where(_ => Managers.Stage.isEnemyTurn.Value == true)
-            .Select(_ => GetSelectGameObject())
-            .Subscribe(gameObject =>
+            .Select(_ => GetSelectCharacter())
+            .Subscribe(character =>
             {
-                if (gameObject == null)
+                if (character == null)
                 {
                     return;
                 }
 
-                CheckCharacterType(gameObject);
-            });
+                if (character.characterState.Value == CharacterState.Death)
+                {
+                    return;
+                }
+
+                CheckCharacterType(character, typeof(Player));
+            }).AddTo(this);
     }
 
-    protected override GameObject GetSelectGameObject()
-    {
-        randomIndex = GetRandomIndex();
-
-        return Managers.Stage.players[randomIndex].gameObject;
-    }
-
-    protected override void UpdateTurnAsObservable(ReactiveProperty<bool> isCharacterTurn)
-    {
-        base.UpdateTurnAsObservable(isCharacterTurn);
-    }
+    protected override Character GetSelectCharacter()
+        => GetRandomCharacterInList(Managers.Stage.players);
 
     protected override void SelectCharacterAtFirstTurn()
     {
-        randomIndex = GetRandomIndex();
-        GetSelectGameObject();
+        
     }
 
-    protected override Type ReturnCasePlayerType(GameObject gameObject)
+    protected override void ReturnCheckCharacterType(Character player)
     {
-        Player player = gameObject.GetCharacterInGameObject<Player>();
+        Character turnCharacter = Managers.Stage.turnCharacter.Value;
+
         target.gameObject.SetActive(true);
 
-        Managers.Stage.turnCharacter.Value.characterState.Value = CharacterState.NormalAttack;
-        Managers.Game.selectCharacter.Value = player.GetCharacterInGameObject<Character>();
-        Managers.Stage.turnCharacter.Value.characterState.Value = CharacterState.Idle;
+        turnCharacter.ChangeCharacterState(CharacterState.NormalAttack);
+        player.GetDamage(turnCharacter.currentAttack.Value);
+        Debug.Log($"{player} Health : {player.currentHealth.Value}");
+        turnCharacter.ChangeCharacterState(CharacterState.Idle);
+
         Managers.Stage.NextTurn();
-
-        return player.GetCharacterTypeInGameObject<Player>();
     }
-
-    private int GetRandomIndex()
-        => Random.Range(0, Managers.Stage.players.Count);
 }
