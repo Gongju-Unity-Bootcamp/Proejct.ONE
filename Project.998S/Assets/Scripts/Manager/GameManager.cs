@@ -1,5 +1,6 @@
 using UniRx;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,7 +18,15 @@ public class GameManager : MonoBehaviour
 
         GamePrefabData data = Managers.Data.GamePrefab[GamePrefabID.Highlight];
 
+        //Managers.Stage.enemies[0].currentHealth.Value = 0;
+        //Managers.Stage.enemies[0].currentAttack.Value = 0;
+        //Managers.Stage.players[0].currentHealth.Value = 0;
+        //Managers.Stage.players[0].currentAttack.Value = 0;
+        
+
         GamePlay((StageID)1 , data);
+
+        Managers.UI.OpenPopup<HudPopup>();
     }
 
     public void GamePlay(StageID id, GamePrefabData data)
@@ -25,6 +34,8 @@ public class GameManager : MonoBehaviour
         Managers.Stage.CreateDungeon(id);
         Managers.Stage.UpdateTurnAsObservable();
         UpdateSelectCharacterAsObservable(data);
+
+        
     }
 
     private void UpdateSelectCharacterAsObservable(GamePrefabData data)
@@ -55,4 +66,6 @@ public class GameManager : MonoBehaviour
 
     private GameObject CreateHighlight(GamePrefabData data)
         => Managers.Resource.Instantiate(data.Prefab);
+
+
 }
