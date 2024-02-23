@@ -110,7 +110,8 @@ public class StageManager : MonoBehaviour
     {
         turnCount.Subscribe(value =>
         {
-            turnCharacter.Value = turnQueue.Dequeue();
+            if(turnQueue.Count > 0)//Queue.Empty 예외처리
+                turnCharacter.Value = turnQueue.Dequeue();
 
             Type type = turnCharacter.Value.GetCharacterTypeInGameObject<Character>();
 

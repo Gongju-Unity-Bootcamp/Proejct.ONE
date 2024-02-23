@@ -15,8 +15,7 @@ public class EnemyHUDHpSubItem : UISubItem
         EnemyCurrentHpText,
         LevelText,
         AttackText,
-        EnemyText
-
+        EnemyNameText
     }
 
     [HideInInspector] public int index { get; set; }
