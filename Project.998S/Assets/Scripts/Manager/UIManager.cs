@@ -14,6 +14,7 @@ public class UIManager
     {
         popupStack = new Stack<UIPopup>();
         UIRoot = new GameObject(nameof(UIRoot));
+        //Managers.UI.OpenSubItem<EnemyHUDHpSubItem>();
     }
 
     public void SetCanvas(GameObject go, bool sort = true)
