@@ -7,7 +7,7 @@ public class SpawnManager
         new Vector3(-3, 0, -4), new Vector3(0, 0, -4), new Vector3(3, 0, -4),
         new Vector3(-3, 0, 4), new Vector3(0, 0, 4), new Vector3(3, 0, 4),
 
-        new Vector3(-3, 0, 37.5f), new Vector3(0, 0, 37.5f), new Vector3(3, 0, 37.5f)
+        new Vector3(-3, 0, 39f), new Vector3(0, 0, 39f), new Vector3(3, 0, 39f)
     };
 
     public const int PLAYER_LEFT = 0, PLAYER_CENTER = 1, PLAYER_RIGHT = 2,
@@ -24,6 +24,13 @@ public class SpawnManager
         Mannequins = new GameObject(nameof(Mannequins));
     }
 
+    /// <summary>
+    /// 데이터 아이디를 읽어 캐릭터 타입의 게임 오브젝트를 생성하여 반환하는 메소드입니다.
+    /// </summary>
+    /// <param name="id">데이터 아이디</param>
+    /// <param name="position">생성 위치</param>
+    /// <param name="parent">부모 트랜스폼</param>
+    /// <returns></returns>
     public Character CharacterByID(CharacterID id, int position, Transform parent = null)
     {
         if (id == (CharacterID)0)
@@ -49,6 +56,12 @@ public class SpawnManager
         return CharacterByID(data, position, parent);
     }
 
+    /// <summary>
+    /// 데이터 타입을 읽어 캐릭터 타입의 게임 오브젝트를 생성하여 반환하는 메소드입니다.
+    /// </summary>
+    /// <param name="data">데이터</param>
+    /// <param name="position">생성 위치</param>
+    /// <param name="parent">부모 트랜스폼</param>
     public Character CharacterByID(CharacterData data, int position, Transform parent = null)
     {
         GameObject character = Managers.Resource.Instantiate(data.Prefab, parent);

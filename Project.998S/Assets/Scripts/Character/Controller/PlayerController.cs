@@ -23,7 +23,7 @@ public class PlayerController : Controller
                     return;
                 }
 
-                if (character.characterState.Value == CharacterState.Death)
+                if (true == character.IsCharacterDead())
                 {
                     return;
                 }
@@ -39,7 +39,9 @@ public class PlayerController : Controller
 
         if (true == Physics.Raycast(ray, out hit))
         {
-            return hit.collider.gameObject.GetCharacterInGameObject<Character>();
+            GameObject gameObject = hit.collider.gameObject;
+
+            return gameObject.GetCharacterInGameObject<Character>();
         }
 
         return null;
@@ -54,8 +56,7 @@ public class PlayerController : Controller
     {
         Character turnCharacter = Managers.Stage.turnCharacter.Value;
 
-        target.gameObject.SetActive(true);
-
+        target.SetActive(true);
         turnCharacter.ChangeCharacterState(CharacterState.NormalAttack);
         enemy.GetDamage(turnCharacter.currentAttack.Value);
         Debug.Log($"{enemy} Health : {enemy.currentHealth.Value}");

@@ -36,7 +36,7 @@ public abstract class Controller : MonoBehaviour
     protected virtual void UpdateTurnAsObservable(ReactiveProperty<bool> isCharacterTurn)
     {
         isCharacterTurn
-            .Where(_ => Managers.Game.selectCharacter == null)
+            .Where(_ => Managers.Game.selectCharacter.Value == null)
             .Subscribe(_ =>
             {
                 SelectCharacterAtFirstTurn();
@@ -48,6 +48,11 @@ public abstract class Controller : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// 캐릭터의 타입을 확인한 뒤 결과를 확인하는 메소드입니다.
+    /// </summary>
+    /// <param name="character">캐릭터</param>
+    /// <param name="targetType">타입</param>
     protected virtual void CheckCharacterType(Character character, Type targetType)
     {
         if (character.GetType() != targetType)
@@ -59,27 +64,42 @@ public abstract class Controller : MonoBehaviour
         ReturnCheckCharacterType(character);
     }
 
+    /// <summary>
+    /// 캐릭터 타입의 변수를 확인하여 결과를 등록하는 메소드입니다.
+    /// </summary>
+    /// <param name="character">캐릭터</param>
     protected virtual void ReturnCheckCharacterType(Character character)
     {
 
     }
 
-    private int count;
-
+    /// <summary>
+    /// 캐릭터 타입의 배열에서 랜덤으로 캐릭터를 반환하는 메소드입니다.
+    /// </summary>
+    /// <param name="characters">캐릭터 타입의 배열</param>
     public Character GetRandomCharacterInList(List<Character> characters)
     {
-        if (count > characters.Count)
+        int random = Random.Range(0, characters.Count);
+        bool isDead = true;
+
+        for (int index = 0; index < isCharacterDead.Length; ++index)
         {
-            count = 0;
+            isDead &= isCharacterDead[index];
+        }
+
+        if (isDead)
+        {
+            Array.Fill(isCharacterDead, false);
+
             return null;
         }
 
-        int random = Random.Range(0, characters.Count);
-
-        if (characters[random].characterState.Value != CharacterState.Death)
+        if (false == characters[random].IsCharacterDead())
         {
             return characters[random].GetCharacterInGameObject<Character>();
         }
+
+        isCharacterDead[random] = true;
 
         return GetRandomCharacterInList(characters);
     }

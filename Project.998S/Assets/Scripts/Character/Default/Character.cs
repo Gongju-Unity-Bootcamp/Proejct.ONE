@@ -36,7 +36,7 @@ public abstract class Character : MonoBehaviour
     protected Animator animator;
     protected Transform lookTransform;
 
-    private IDisposable updateLookAtTargetAsObservable;
+    protected IDisposable updateLookAtTargetAsObservable;
 
     protected virtual void Awake()
     {
@@ -60,15 +60,19 @@ public abstract class Character : MonoBehaviour
         currentLuck = new ReactiveProperty<int>();
         currentFocus = new ReactiveProperty<int>();
 
-        characterId = id;
-        characterName = Managers.Data.Character[id].Name;
-        characterState = new ReactiveProperty<CharacterState>();
-        characterState.Value = CharacterState.Idle;
-
+        InitInfo(id);
         InitStat(Managers.Data.Character[id]);
 
         UpdateLookAtTargetAsObservable();
         UpdateStateChangeAsObservable();
+    }
+
+    public virtual void InitInfo(CharacterID id)
+    {
+        characterId = id;
+        characterName = Managers.Data.Character[id].Name;
+        characterState = new ReactiveProperty<CharacterState>();
+        characterState.Value = CharacterState.Idle;
     }
 
     public virtual void InitStat(CharacterData data)
@@ -124,17 +128,19 @@ public abstract class Character : MonoBehaviour
                     case CharacterState.Idle:
                         break;
                     case CharacterState.Dodge:
+                        animator.SetTrigger(AnimatorParameter.Dodge);
                         break;
                     case CharacterState.Damage:
-                        break;
-                    case CharacterState.Death:
+                        animator.SetTrigger(AnimatorParameter.Damage);
                         break;
                     case CharacterState.NormalAttack:
                         animator.SetTrigger(AnimatorParameter.NormalAttack);
                         break;
                     case CharacterState.ShortSkill:
+                        animator.SetTrigger(AnimatorParameter.ShortSkill);
                         break;
                     case CharacterState.LongSkill:
+                        animator.SetTrigger(AnimatorParameter.LongSkill);
                         break;
                 }
             }).AddTo(this);
@@ -142,7 +148,7 @@ public abstract class Character : MonoBehaviour
 
     public void ChangeCharacterState(CharacterState state)
     {
-        if (characterState.Value != CharacterState.Death)
+        if (false == this.IsCharacterDead())
         {
             characterState.Value = state;
         }
@@ -154,15 +160,14 @@ public abstract class Character : MonoBehaviour
     public virtual void GetDamage(int damage)
     {
         ChangeCharacterState(CharacterState.Damage);
+        currentHealth.Value -= damage;
 
-        if (currentHealth.Value > 0)
+        if (currentHealth.Value <= 0)
         {
-            currentHealth.Value -= damage;
+            currentHealth.Value = 0;
 
-            return;
+            Die();
         }
-
-        Die();
     }
 
     public abstract void Die();

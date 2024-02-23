@@ -1,7 +1,7 @@
 using System;
 using UniRx;
-using UnityEngine.EventSystems;
 using Object = UnityEngine.Object;
+using UnityEngine.EventSystems;
 using UnityEngine;
 
 public static class Extensions
@@ -17,7 +17,7 @@ public static class Extensions
         => UserInterface.BindViewEvent(view, action, type, component);
 
     /// <summary>
-    /// 반응형 모델의 이벤트를 등록하기 위한 메소드입니다.
+    /// 반응형 변수의 이벤트를 등록하기 위한 메소드입니다.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="model">반응형 모델</param>
@@ -49,10 +49,10 @@ public static class Extensions
     /// <summary>
     /// 게임 오브젝트에서 캐릭터 오브젝트의 사망 여부를 반환하기 위한 메소드입니다.
     /// </summary>
-    /// <param name="gameObject"></param>
-    public static bool IsCharacterDead(this GameObject gameObject)
-        => Utils.IsCharacterDead(gameObject);
-
+    /// <param name="character"></param>
     public static bool IsCharacterDead(this Character character)
-        => Utils.IsCharacterDead(character.gameObject);
+        => Utils.IsCharacterDead(character);
+
+    public static bool IsCharacterDead(this GameObject gameObject)
+        => Utils.IsCharacterDead(gameObject.GetCharacterInGameObject<Character>());
 }

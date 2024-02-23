@@ -1,34 +1,44 @@
-using System;
 using System.Collections.Generic;
+using System;
 using Object = UnityEngine.Object;
 using UnityEngine;
 
 public static class Utils
 {
-    public static T FindChild<T>(GameObject go, string name = null, bool recursive = false) where T : Object
+    /// <summary>
+    /// 제너릭으로 FindChild() 참조한 후에 값을 반환하는 메소드입니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="gameObject">게임 오브젝트</param>
+    /// <param name="name">이름</param>
+    /// <param name="recursive">재귀 여부</param>
+    public static T FindChild<T>(GameObject gameObject, string name = null, bool recursive = false) where T : Object
     {
-        if (go == null)
+        if (gameObject == null)
         {
             throw new InvalidOperationException($"GameObject is null.");
         }
 
         if (false == recursive)
         {
-            //return go.transform.FindAssert(name).GetComponentAssert<T>();
-            for(int i = 0; i < go.transform.childCount; i++)
+            for (int i = 0; i < gameObject.transform.childCount; i++)
             {
-                Transform transform = go.transform.GetChild(i);
-                if(string.IsNullOrEmpty(name) || transform.name == name)
+                Transform transform = gameObject.transform.GetChild(i);
+
+                if (string.IsNullOrEmpty(name) || transform.name == name)
                 {
                     T component = transform.GetComponent<T>();
+
                     if (component != null)
+                    {
                         return component;
+                    }
                 }
             }
         }
         else
         {
-            foreach (T component in go.GetComponentsInChildren<T>())
+            foreach (T component in gameObject.GetComponentsInChildren<T>())
             {
                 if (false == string.IsNullOrEmpty(name) && component.name != name)
                 {
@@ -43,13 +53,13 @@ public static class Utils
     }
 
     /// <summary>
-    /// 트랜스폼 FindChild() 참조 중에 발생하는 오류를 방지하기 위한 메소드입니다.
+    /// 트랜스폼 타입의 제너릭으로 FindChild() 참조한 후에 값을 반환하는 메소드입니다.
     /// </summary>
-    /// <param name="go">게임 오브젝트</param>
+    /// <param name="gameObject">게임 오브젝트</param>
     /// <param name="name">이름</param>
     /// <param name="recursive">재귀 여부</param>
-    public static GameObject FindChild(GameObject go, string name = null, bool recursive = false)
-        => FindChild<Transform>(go, name, recursive).gameObject;
+    public static GameObject FindChild(GameObject gameObject, string name = null, bool recursive = false)
+        => FindChild<Transform>(gameObject, name, recursive).gameObject;
 
     /// <summary>
     /// 게임 오브젝트에서 캐릭터 타입 오브젝트를 반환하기 위한 메소드입니다.
@@ -65,6 +75,8 @@ public static class Utils
         }
 
         return gameObject.GetComponent<T>();
+
+        throw new InvalidOperationException($"GameObject is not a Character type.");
     }
 
     /// <summary>
@@ -77,17 +89,15 @@ public static class Utils
     /// <summary>
     /// 게임 오브젝트에서 캐릭터 오브젝트의 사망 여부를 반환하기 위한 메소드입니다.
     /// </summary>
-    /// <param name="gameObject"></param>
-    public static bool IsCharacterDead(GameObject gameObject)
+    /// <param name="gameObject">게임 오브젝트</param>
+    public static bool IsCharacterDead(Character character)
     {
-        Character character = gameObject.GetCharacterInGameObject<Character>();
-
-        if (character.characterState.Value == CharacterState.Death)
+        if (character.characterState.Value != CharacterState.Death)
         {
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /// <summary>
@@ -124,7 +134,7 @@ public static class Utils
     public static T[] ReferenceDataByIdEnum<T>(string IdEnum) where T : Enum
     {
         int[] splitByComma = Array.ConvertAll(IdEnum.Split("."), int.Parse);
-        T[] values = new T  [splitByComma.Length];
+        T[] values = new T[splitByComma.Length];
 
         for (int index = 0; index < splitByComma.Length; ++index)
         {
