@@ -19,6 +19,9 @@ public abstract class Character : MonoBehaviour
     [HideInInspector] public ReactiveProperty<int> currentLuck;
     [HideInInspector] public ReactiveProperty<int> currentFocus;
 
+    [HideInInspector] public ReactiveProperty<int> currentLevel;
+    [HideInInspector] public ReactiveProperty<int> currentExp;
+
     [HideInInspector] public CharacterID characterId;
     [HideInInspector] public string characterName;
 
@@ -43,8 +46,8 @@ public abstract class Character : MonoBehaviour
         currentLuck = new ReactiveProperty<int>();
         currentFocus = new ReactiveProperty<int>();
         
-        level = new ReactiveProperty<int>();
-        exp = new ReactiveProperty<int>();
+        currentLevel = new ReactiveProperty<int>();
+        currentExp = new ReactiveProperty<int>();
 
         characterId = id;
         characterName = Managers.Data.Character[id].Name;

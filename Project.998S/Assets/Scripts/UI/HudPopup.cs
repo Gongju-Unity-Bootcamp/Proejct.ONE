@@ -24,7 +24,7 @@ public class HudPopup : UIPopup
         _subItems = new List<UISubItem>()
         {
             Managers.UI.OpenSubItem<EnemyHUDHpSubItem>(transform),
-            Managers.UI.OpenSubItem<PlayerHpBar>(transform)
+            Managers.UI.OpenSubItem<PlayerHUDHpSubItem>(transform)
         };
 
 
