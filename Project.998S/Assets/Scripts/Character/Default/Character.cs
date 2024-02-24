@@ -22,6 +22,7 @@ public abstract class Character : MonoBehaviour
     [HideInInspector] public CharacterID characterId;
     [HideInInspector] public string characterName;
     [HideInInspector] public EquipmentID equipmentId;
+    [HideInInspector] public SkillID skillId;
     [HideInInspector] public ReactiveProperty<CharacterState> characterState { get; set; }
 
     protected int uniqueHealth { get; private set; }
@@ -29,7 +30,6 @@ public abstract class Character : MonoBehaviour
     protected int uniqueDefense { get; private set; }
     protected int uniqueLuck { get; private set; }
     protected int uniqueFocus { get; private set; }
-
     protected int maxLevel { get; private set; }
 
     protected Animator animator;
@@ -106,7 +106,9 @@ public abstract class Character : MonoBehaviour
 
     public void InitEquipment(CharacterData data)
     {
-
+        equipmentId = data.IdEquipment;
+        
+        
     }
 
     protected void UpdateLookAtTargetAsObservable()
