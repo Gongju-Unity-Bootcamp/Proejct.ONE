@@ -15,6 +15,7 @@ public class EffectData
 {
     public EffectID Id { get; set; }
     public int Effect { get; set; }
+    public string Prefab { get; set; }
     public int Target { get; set; }
     public EffectAnimation Animation { get; set; }
     public int Chance { get; set; }

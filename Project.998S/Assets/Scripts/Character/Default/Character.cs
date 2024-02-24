@@ -12,16 +12,16 @@ public abstract class Character : MonoBehaviour
 
     [HideInInspector] public ReactiveProperty<int> level { get; set; }
     [HideInInspector] public ReactiveProperty<int> exp { get; set; }
-
+    [HideInInspector] public ReactiveProperty<int> requireExp { get; private set; }
     [HideInInspector] public ReactiveProperty<int> currentHealth { get; set; }
     [HideInInspector] public ReactiveProperty<int> currentAttack { get; set; }
     [HideInInspector] public ReactiveProperty<int> currentDefense { get; set; }
     [HideInInspector] public ReactiveProperty<int> currentLuck { get; set; }
-    [HideInInspector] public ReactiveProperty<int> currentFocus { get; private set; }
+    [HideInInspector] public ReactiveProperty<int> currentFocus { get; set; }
 
     [HideInInspector] public CharacterID characterId;
     [HideInInspector] public string characterName;
-
+    [HideInInspector] public EquipmentID equipmentId;
     [HideInInspector] public ReactiveProperty<CharacterState> characterState { get; set; }
 
     protected int uniqueHealth { get; private set; }
@@ -31,7 +31,6 @@ public abstract class Character : MonoBehaviour
     protected int uniqueFocus { get; private set; }
 
     protected int maxLevel { get; private set; }
-    protected int requireExp { get; private set; }
 
     protected Animator animator;
     protected Transform lookTransform;
@@ -53,6 +52,7 @@ public abstract class Character : MonoBehaviour
         
         level = new ReactiveProperty<int>();
         exp = new ReactiveProperty<int>();
+        requireExp = new ReactiveProperty<int>();
 
         currentHealth = new ReactiveProperty<int>();
         currentAttack = new ReactiveProperty<int>();
@@ -89,7 +89,7 @@ public abstract class Character : MonoBehaviour
         exp.Value = 0;
 
         maxLevel = Managers.Data.Level.Count;
-        requireExp = levelData.Exp;
+        requireExp.Value = levelData.Exp;
 
         maxHealth.Value = Define.Calculate.Health(uniqueHealth, levelData.HealthPerLevel);
         maxAttack.Value = Define.Calculate.Attack(uniqueAttack, levelData.AttackPerLevel);
@@ -102,6 +102,11 @@ public abstract class Character : MonoBehaviour
         currentDefense.Value = maxDefense.Value;
         currentLuck.Value = maxLuck.Value;
         currentFocus.Value = maxFocus.Value;
+    }
+
+    public void InitEquipment(CharacterData data)
+    {
+
     }
 
     protected void UpdateLookAtTargetAsObservable()

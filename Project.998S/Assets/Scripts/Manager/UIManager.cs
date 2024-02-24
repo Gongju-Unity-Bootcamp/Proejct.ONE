@@ -39,7 +39,7 @@ public class UIManager
     }
 
     /// <summary>
-    /// 서브 아이템 인터페이스를 생성하는 메소드입니다.
+    /// 팝업 인터페이스를 생성하는 메소드입니다.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="parent">부모 트랜스폼</param>
@@ -69,21 +69,21 @@ public class UIManager
     private T SetupUI<T>(Transform parent = null) where T : UserInterface
     {
         GameObject prefab = Managers.Resource.LoadPrefab(typeof(T).Name);
-        GameObject go = Managers.Resource.Instantiate(prefab);
+        GameObject gameObject = Managers.Resource.Instantiate(prefab);
 
         if (parent != null)
         {
-            go.transform.SetParent(parent);
+            gameObject.transform.SetParent(parent);
         }
         else
         {
-            go.transform.SetParent(UIRoot.transform);
+            gameObject.transform.SetParent(UIRoot.transform);
         }
 
-        go.transform.localScale = DEFAULT_SCALE;
-        go.transform.localPosition = prefab.transform.position;
+        gameObject.transform.localScale = DEFAULT_SCALE;
+        gameObject.transform.localPosition = prefab.transform.position;
 
-        return go.GetComponentAssert<T>();
+        return gameObject.GetComponentAssert<T>();
     }
 
     /// <summary>

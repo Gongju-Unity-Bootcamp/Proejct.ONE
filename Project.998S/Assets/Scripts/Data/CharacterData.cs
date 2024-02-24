@@ -33,6 +33,5 @@ public class CharacterData
     public int Luck { get; set; }
     public int Focus { get; set; }
     public LevelID IdLevel { get; set; }
-    public SkillID IdSkill { get; set; }
     public EquipmentID IdEquipment { get; set; }
 }

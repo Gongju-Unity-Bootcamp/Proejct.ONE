@@ -10,4 +10,6 @@ public static class AnimatorParameter
     public static readonly int LongSkill = Animator.StringToHash("LSkill");
     public static readonly int Damage = Animator.StringToHash("Damage");
     public static readonly int Idle = Animator.StringToHash("Idle");
+
+    public static readonly int OpenDoor = Animator.StringToHash("OpenDoor");
 }
