@@ -126,6 +126,8 @@ public class StageManager : MonoBehaviour
         {
             turnCharacter.Value = turnQueue.Dequeue();
 
+            Managers.UI.OpenPopup<PlayerActionPopup>();
+
             if (true == turnCharacter.Value.IsCharacterDead())
             {
                 NextTurn();

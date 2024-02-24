@@ -1,4 +1,4 @@
-public class PlayerActionSubItem : UISubItem
+public class PlayerActionPopup : UIPopup
 {
     public override void Init()
     {
