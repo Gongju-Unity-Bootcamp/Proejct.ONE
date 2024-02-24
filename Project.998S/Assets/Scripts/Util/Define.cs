@@ -5,9 +5,10 @@ public static class Define
 {
     public static class Keyword
     {
-        public const string HOVER = "h";
-        public const string SLOT = "slot";
-        public const string INFO = "info";
+        public const string BUTTONH = "H";
+        public const string SLOT = "S";
+        public const string SLOTH = "SH";
+        public const string SLOTF = "SF";
     }
 
     public static class Table

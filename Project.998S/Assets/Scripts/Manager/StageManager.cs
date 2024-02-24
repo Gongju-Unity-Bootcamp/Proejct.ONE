@@ -19,6 +19,8 @@ public class StageManager : MonoBehaviour
     [HideInInspector] public ReactiveProperty<int> turnCount { get; set; }
     [HideInInspector] public ReactiveProperty<Character> turnCharacter { get; set; }
 
+    private Animator door;
+
     public void Init()
     {
         players = new List<Character>();
@@ -39,8 +41,10 @@ public class StageManager : MonoBehaviour
         string dungeonPrefabPath = Managers.Data.Prefab[(int)PrefabID.Dungeon].Prefab;
         string spawnPrefabPath = Managers.Data.Prefab[(int)PrefabID.Spawn].Prefab;
 
-        Managers.Resource.Instantiate(dungeonPrefabPath);
-        Managers.Resource.Instantiate(spawnPrefabPath);
+        GameObject dungeon = Managers.Resource.Instantiate(dungeonPrefabPath);
+        GameObject spawn = Managers.Resource.Instantiate(spawnPrefabPath);
+
+        door = dungeon.transform.Find("hildebrantDoor").GetComponentAssert<Animator>();
 
         players = ResetCharacter(PLAYER_INDEX, players, ReturnArray<CharacterID>
         (
@@ -66,7 +70,7 @@ public class StageManager : MonoBehaviour
 
     public void NextDungeon(StageID id)
     {
-
+        door.SetTrigger(AnimatorParameter.OpenDoor);
     }
 
     private List<Character> ResetCharacter(int type, List<Character> characters = null, params CharacterID[] id)

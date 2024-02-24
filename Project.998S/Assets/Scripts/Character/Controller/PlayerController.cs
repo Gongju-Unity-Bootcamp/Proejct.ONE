@@ -14,7 +14,7 @@ public class PlayerController : Controller
     protected override void UpdateActionAsObservable()
     {
         updateActionObserver = Observable.EveryUpdate()
-            .Where(_ => Input.GetMouseButtonDown(0)).Where(_ => Managers.Stage.isPlayerTurn.Value == true)
+            .Where(_ => Input.GetKeyDown(KeyCode.Mouse0)).Where(_ => Managers.Stage.isPlayerTurn.Value == true)
             .Select(_ => GetSelectCharacter())
             .Subscribe(character =>
             {

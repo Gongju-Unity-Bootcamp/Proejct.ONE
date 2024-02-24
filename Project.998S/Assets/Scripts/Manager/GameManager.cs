@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     {
         Managers.Stage.CreateDungeon(id);
         Managers.Stage.UpdateTurnAsObservable();
+        Managers.UI.OpenPopup<HUDPopup>();
         UpdateSelectCharacterAsObservable(data);
     }
 

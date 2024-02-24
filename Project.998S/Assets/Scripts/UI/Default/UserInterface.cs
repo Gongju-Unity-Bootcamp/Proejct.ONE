@@ -48,25 +48,36 @@ public abstract class UserInterface : MonoBehaviour
     /// 게임 오브젝트 등록을 위한 메소드입니다.
     /// </summary>
     /// <param name="type">바인딩 게임 오브젝트</param>
-    protected void BindObject(Type type) => Bind<GameObject>(type);
+    protected void BindObject(Type type) 
+        => Bind<GameObject>(type);
+
+    /// <summary>
+    /// 로우 이미지 등록을 위한 메소드입니다.
+    /// </summary>
+    /// <param name="type">바인딩 로우 이미지</param>
+    protected void BindRawImage(Type type) 
+        => Bind<RawImage>(type);
 
     /// <summary>
     /// 이미지 등록을 위한 메소드입니다.
     /// </summary>
     /// <param name="type">바인딩 이미지</param>
-    protected void BindImage(Type type) => Bind<Image>(type);
+    protected void BindImage(Type type) 
+        => Bind<Image>(type);
 
     /// <summary>
     /// 텍스트 등록을 위한 메소드입니다.
     /// </summary>
     /// <param name="type">바인딩 텍스트</param>
-    protected void BindText(Type type) => Bind<TMP_Text>(type);
+    protected void BindText(Type type) 
+        => Bind<TMP_Text>(type);
 
     /// <summary>
     /// 버튼 등록을 위한 메소드입니다.
     /// </summary>
     /// <param name="type">바인딩 버튼</param>
-    protected void BindButton(Type type) => Bind<Button>(type);
+    protected void BindButton(Type type) 
+        => Bind<Button>(type);
 
     protected T Get<T>(int index) where T : Object
     {
@@ -84,6 +95,13 @@ public abstract class UserInterface : MonoBehaviour
     /// <param name="index">인덱스 번호</param>
     protected GameObject GetObject(int index) 
         => Get<GameObject>(index);
+
+    /// <summary>
+    /// 로우 이미지를 반환하는 메소드입니다.
+    /// </summary>
+    /// <param name="index">인덱스 번호</param>
+    protected RawImage GetRawImage(int index)
+        => Get<RawImage>(index);
 
     /// <summary>
     /// 이미지를 반환하는 메소드입니다.

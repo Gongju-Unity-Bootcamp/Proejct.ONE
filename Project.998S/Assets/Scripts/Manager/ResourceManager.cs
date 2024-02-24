@@ -7,6 +7,7 @@ public class ResourceManager
 {
     public Dictionary<string, Animator> Animators { get; private set; }
     public Dictionary<string, Texture> Textures { get; private set; }
+    public Dictionary<string, RawImage> RawImages { get; private set; }
     public Dictionary<string, Image> Images { get; private set; }
     public Dictionary<string, Material> Materials { get; private set; }
     public Dictionary<string, GameObject> Prefabs { get; private set; }
@@ -16,6 +17,7 @@ public class ResourceManager
     {
         Animators = new Dictionary<string, Animator>();
         Textures = new Dictionary<string, Texture>();
+        RawImages = new Dictionary<string, RawImage>();
         Images = new Dictionary<string, Image>();
         Materials = new Dictionary<string, Material>();
         Prefabs = new Dictionary<string, GameObject>();
@@ -46,8 +48,15 @@ public class ResourceManager
     /// 데이터 파일 경로를 통해 텍스쳐를 반환하는 메소드입니다.
     /// </summary>
     /// <param name="path">데이터 파일 경로</param>
-    public Image LoadTexture(string path) 
-        => Load(Images, string.Concat(Define.Path.TEXTURE, path));
+    public Texture LoadTexture(string path)
+        => Load(Textures, string.Concat(Define.Path.TEXTURE, path));
+
+    /// <summary>
+    /// 데이터 파일 경로를 통해 로우 이미지를 반환하는 메소드입니다.
+    /// </summary>
+    /// <param name="path">데이터 파일 경로</param>
+    public RawImage LoadRawImage(string path) 
+        => Load(RawImages, string.Concat(Define.Path.TEXTURE, path));
 
     /// <summary>
     /// 데이터 파일 경로를 통해 이미지를 반환하는 메소드입니다.
