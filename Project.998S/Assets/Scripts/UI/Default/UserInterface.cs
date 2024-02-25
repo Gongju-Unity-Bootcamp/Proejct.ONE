@@ -10,8 +10,10 @@ using UnityEngine;
 
 public enum ViewEvent
 {
-    Click,
-    Enter
+    Enter,
+    Exit,
+    LeftClick,
+    RightClick,
 }
 
 public abstract class UserInterface : MonoBehaviour
@@ -135,11 +137,17 @@ public abstract class UserInterface : MonoBehaviour
     {
         switch (type)
         {
-            case ViewEvent.Click:
-                view.OnPointerClickAsObservable().Subscribe(action).AddTo(component);
-                break;
             case ViewEvent.Enter:
                 view.OnPointerEnterAsObservable().Subscribe(action).AddTo(component);
+                break;
+            case ViewEvent.Exit:
+                view.OnPointerExitAsObservable().Subscribe(action).AddTo(component);
+                break;
+            case ViewEvent.LeftClick:
+                view.OnPointerClickAsObservable().Where(eventData => eventData.button == PointerEventData.InputButton.Left).Subscribe(action).AddTo(component);
+                break;
+            case ViewEvent.RightClick:
+                view.OnPointerDownAsObservable().Where(eventData => eventData.button == PointerEventData.InputButton.Right).Subscribe(action).AddTo(component);
                 break;
         };
     }

@@ -55,4 +55,15 @@ public static class Extensions
 
     public static bool IsCharacterDead(this GameObject gameObject)
         => Utils.IsCharacterDead(gameObject.GetCharacterInGameObject<Character>());
+
+
+    /// <summary>
+    /// 게임 오브젝트에서 캐릭터 오브젝트의 공격 여부를 반환하기 위한 메소드입니다.
+    /// </summary>
+    /// <param name="character"></param>
+    public static bool IsCharacterAttack(this Character character)
+        => Utils.IsCharacterAttack(character);
+
+    public static bool IsCharacterAttack(this GameObject gameObject)
+        => Utils.IsCharacterAttack(gameObject.GetCharacterInGameObject<Character>());
 }

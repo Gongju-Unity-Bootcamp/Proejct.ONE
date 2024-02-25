@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class PlayerHUDSubItem : UISubItem
 {
@@ -17,6 +18,19 @@ public class PlayerHUDSubItem : UISubItem
         HealthGaugeImage,
         ExpGaugeImage
     }
+
+    private Images[] focusImages = new Images[]
+    {
+        Images.Focus1Image,
+        Images.Focus2Image,
+        Images.Focus3Image,
+    };
+
+    private Images[] skillImages = new Images[]
+    {
+        Images.Skill1ShowImage,
+        Images.Skill2ShowImage
+    };
 
     private enum Buttons
     {
@@ -55,15 +69,18 @@ public class PlayerHUDSubItem : UISubItem
             }
         }
 
-        CharacterID id = Managers.Stage.players[playerIndex].characterId;
+        Player player = Managers.Stage.players[playerIndex].GetCharacterInGameObject<Player>();
+        CharacterID id = player.characterId.Value;
         CharacterData data = Managers.Data.Character[id];
 
         SetNameText(data);
         SetRenderTexture(data);
 
-        Managers.Stage.players[playerIndex].currentHealth.BindModelEvent(UpdateHealthIndicator, this);
-        Managers.Stage.players[playerIndex].level.BindModelEvent(UpdateLevelText, this);
-        Managers.Stage.players[playerIndex].exp.BindModelEvent(UpdateExpIndicator, this);
+        player.currentHealth.BindModelEvent(UpdateHealthIndicator, this);
+        player.currentFocus.BindModelEvent(UpdateFocusIndicator, this);
+        player.level.BindModelEvent(UpdateLevelText, this);
+        player.exp.BindModelEvent(UpdateExpIndicator, this);
+        player.skillIds.BindModelEvent(UpdateSkillIndicator, this);
     }
 
     private void SetNameText(CharacterData data)
@@ -85,6 +102,25 @@ public class PlayerHUDSubItem : UISubItem
         GetText((int)Texts.LargeHealthText).text = health.ToString();
     }
 
+    private void UpdateFocusIndicator(int focus)
+    {
+        int index = 0;
+
+        foreach (Images imageIndex in focusImages)
+        {
+            if (index >= focus)
+            {
+                GetImage((int)imageIndex).gameObject.SetActive(false);
+            }
+            else
+            {
+                GetImage((int)imageIndex).gameObject.SetActive(true);
+            }
+
+            ++index;
+        }
+    }
+
     private void UpdateLevelText(int level)
     {
         GetText((int)Texts.LevelText).text = level.ToString();
@@ -92,10 +128,29 @@ public class PlayerHUDSubItem : UISubItem
 
     private void UpdateExpIndicator(int exp)
     {
-        float currentExp = Managers.Stage.players[playerIndex].exp.Value;
         float requireExp = Managers.Stage.players[playerIndex].requireExp.Value;
 
-        GetImage((int)Images.ExpGaugeImage).fillAmount = currentExp / requireExp;
-        GetText((int)Texts.ExpText).text = $"{currentExp} / {requireExp}".ToString();
+        GetImage((int)Images.ExpGaugeImage).fillAmount = exp / requireExp;
+        GetText((int)Texts.ExpText).text = $"{exp} / {requireExp}".ToString();
+    }
+
+    private void UpdateSkillIndicator(int[] skills)
+    {
+        int skillCount = Managers.Stage.players[playerIndex].skillIds.Value.Length;
+        int index = 0;
+
+        foreach (Images imageIndex in skillImages)
+        {
+            if (index < skillCount)
+            {
+                SkillData skilldata = Managers.Data.Skill[(SkillID)skills[index]];
+                GetImage((int)imageIndex).sprite = Managers.Resource.LoadSprite(string.Concat(skilldata.Icon, Define.Keyword.INFO));
+                ++index;
+
+                continue;
+            }
+
+            GetImage((int)imageIndex).gameObject.SetActive(false);
+        }
     }
 }

@@ -1,52 +1,49 @@
-using System;
 using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
+using System;
 using UniRx;
 using Random = UnityEngine.Random;
 using UnityEngine;
 
 public abstract class Controller : MonoBehaviour
 {
-    protected GameObject target;
-    protected int[] targetFindSequence;
+    [HideInInspector] public Dictionary<bool, int> slotAccuracyDamage { get; set; }
+    [HideInInspector] public ReactiveProperty<bool> isAllCharacterDead { get; set; }
+
     protected bool[] isCharacterDead;
+    protected IDisposable updateActionObserver, doAttackAsObservable;
+    protected GameObject target;
+    protected Coroutine damageDelay;
 
-    protected IDisposable updateActionObserver;
-
-    public void Start()
+    private void Start()
         => Init();
 
     public virtual void Init()
     {
-        target = Managers.Game.target;
-        targetFindSequence = new int[StageManager.MAX_CHARACTER_COUNT]
-        { 
-            SpawnManager.CHARACTER_CENTER, 
-            SpawnManager.CHARACTER_LEFT, 
-            SpawnManager.CHARACTER_RIGHT 
-        };
-        isCharacterDead = new bool[StageManager.MAX_CHARACTER_COUNT];
+        slotAccuracyDamage = new Dictionary<bool, int>();
+        isAllCharacterDead = new ReactiveProperty<bool>();
+        isCharacterDead = new bool[SpawnManager.MAX_CHARACTER_COUNT];
+        target = Managers.Stage.target;
 
         UpdateActionAsObservable();
+        UpdateTurnAsObservable();
     }
 
     protected abstract void UpdateActionAsObservable();
 
     protected abstract Character GetSelectCharacter();
 
-    protected virtual void UpdateTurnAsObservable(ReactiveProperty<bool> isCharacterTurn)
+    protected virtual void UpdateTurnAsObservable()
     {
-        isCharacterTurn
-            .Where(_ => Managers.Game.selectCharacter.Value == null)
+        Managers.Stage.turnCount.Where(_ => Managers.Stage.selectCharacter.Value == null)
             .Subscribe(_ =>
             {
-                SelectCharacterAtFirstTurn();
-            }).AddTo(this);
+                StartTurn();
+            });
     }
 
-    protected virtual void SelectCharacterAtFirstTurn()
-    {
-        
-    }
+    protected abstract void StartTurn();
 
     /// <summary>
     /// 캐릭터의 타입을 확인한 뒤 결과를 확인하는 메소드입니다.
@@ -60,17 +57,7 @@ public abstract class Controller : MonoBehaviour
             return;
         }
 
-        Managers.Game.selectCharacter.Value = character;
-        ReturnCheckCharacterType(character);
-    }
-
-    /// <summary>
-    /// 캐릭터 타입의 변수를 확인하여 결과를 등록하는 메소드입니다.
-    /// </summary>
-    /// <param name="character">캐릭터</param>
-    protected virtual void ReturnCheckCharacterType(Character character)
-    {
-
+        Managers.Stage.selectCharacter.Value = character;
     }
 
     /// <summary>
@@ -86,21 +73,61 @@ public abstract class Controller : MonoBehaviour
         {
             isDead &= isCharacterDead[index];
         }
-
         if (isDead)
         {
             Array.Fill(isCharacterDead, false);
+            isAllCharacterDead.Value = isDead;
 
             return null;
         }
 
-        if (false == characters[random].IsCharacterDead())
+        if (true == characters[random].IsCharacterDead())
         {
-            return characters[random].GetCharacterInGameObject<Character>();
+            isCharacterDead[random] = true;
+
+            return GetRandomCharacterInList(characters);
         }
 
-        isCharacterDead[random] = true;
+        return characters[random].GetCharacterInGameObject<Character>();
+    }
 
-        return GetRandomCharacterInList(characters);
+    /// <summary>
+    /// 공격 액션을 담당하는 메소드입니다.
+    /// </summary>
+    public void AttackAction()
+    {
+        Character targetCharacter = Managers.Stage.selectCharacter.Value;
+        Character character = Managers.Stage.turnCharacter.Value;
+        EquipmentData equipmentData = Managers.Data.Equipment[character.equipmentId.Value];
+        Skill skill = character.GetSkillEffect(character.currentSkill.Value);
+        character.ChangeCharacterState(skill.Animation);
+
+        doAttackAsObservable = character.isAttack.Where(_ => character.isAttack.Value == true)
+        .Subscribe(_ => 
+        {
+            character.isAttack.Value = false;
+            int damage = Define.Calculate.Damage(character.currentAttack.Value
+            + skill.Damage, targetCharacter.currentDefense.Value, 
+            character.currentLuck.Value);
+            slotAccuracyDamage = Define.Calculate.Accuracy(damage, character.currentAccuracy.Value);
+            int totalDamage = slotAccuracyDamage.Values.Max();
+
+            targetCharacter.GetDamage(totalDamage);
+
+            StartCoroutine(DelayForEndTurn(Managers.Stage.turnDelay, targetCharacter));
+        }).AddTo(this);
+    }
+
+    /// <summary>
+    /// 다음 턴으로 대기 시간을 설정하는 메소드입니다.
+    /// </summary>
+    /// <param name="delay">다음 턴 대기 시간</param>
+    protected virtual IEnumerator DelayForEndTurn(float delay, Character character)
+    {
+        yield return new WaitForSeconds(delay);
+
+        character.ChangeCharacterState(CharacterState.Idle);
+        doAttackAsObservable.Dispose();
+        Managers.Stage.NextCharacterTurn();
     }
 }

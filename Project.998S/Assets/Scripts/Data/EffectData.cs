@@ -1,8 +1,8 @@
 public enum EffectAnimation
 {
-    NormalAttack = 0,
-    ShortSkill = 1,
-    LongSkill
+    NormalAttack = 1,
+    ShortSkill = 2,
+    LongSkill = 3
 }
 
 public enum EffectID
@@ -14,9 +14,9 @@ public enum EffectID
 public class EffectData
 {
     public EffectID Id { get; set; }
-    public int Effect { get; set; }
+    public SkillEffect Effect { get; set; }
     public string Prefab { get; set; }
-    public int Target { get; set; }
-    public EffectAnimation Animation { get; set; }
+    public SkillTarget Target { get; set; }
+    public CharacterState Animation { get; set; }
     public int Chance { get; set; }
 }

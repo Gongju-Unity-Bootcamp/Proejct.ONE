@@ -89,16 +89,19 @@ public static class Utils
     /// <summary>
     /// 게임 오브젝트에서 캐릭터 오브젝트의 사망 여부를 반환하기 위한 메소드입니다.
     /// </summary>
-    /// <param name="gameObject">게임 오브젝트</param>
+    /// <param name="character">캐릭터</param>
     public static bool IsCharacterDead(Character character)
-    {
-        if (character.characterState.Value != CharacterState.Death)
-        {
-            return false;
-        }
+        => character.characterState.Value == CharacterState.Death ? true : false;
 
-        return true;
-    }
+    /// <summary>
+    /// 게임 오브젝트에서 캐릭터 오브젝트의 공격 여부를 반환하기 위한 메소드입니다.
+    /// </summary>
+    /// <param name="character">캐릭터</param>
+    /// <returns></returns>
+    public static bool IsCharacterAttack(Character character)
+        => character.characterState.Value == CharacterState.NormalAttack ||
+           character.characterState.Value == CharacterState.ShortSkill ||
+        character.characterState.Value == CharacterState.LongSkill ? true : false;
 
     /// <summary>
     /// 딕셔너리 다중 타입의 부분 요소를 반환하기 위한 메소드입니다.
@@ -119,7 +122,7 @@ public static class Utils
         => new List<T>() { { value } };
 
     /// <summary>
-    /// 특정 타입의 배열 요소를 배열에 저장하기 위한 메소드입니다.
+    /// 배열 타입의 부분 요소를 반환하기 위한 메소드입니다.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="values">값</param>
@@ -127,20 +130,35 @@ public static class Utils
         => values;
 
     /// <summary>
-    /// 데이터 문자열 아이디 배열을 지정한 열거형 아이디 배열로 반환하기 위한 메소드입니다.
+    /// 데이터 문자열 아이디 배열을 지정한 정수형 아이디 배열로 반환하기 위한 메소드입니다.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     /// <param name="IdEnum">문자열 IdEnum</param>
-    public static T[] ReferenceDataByIdEnum<T>(string IdEnum) where T : Enum
+    public static int[] ReferenceDataByIdEnum(string IdEnum)
     {
-        int[] splitByComma = Array.ConvertAll(IdEnum.Split("."), int.Parse);
-        T[] values = new T[splitByComma.Length];
+        string[] splitByComma = IdEnum.Split('.');
+        int[] ids = new int[splitByComma.Length];
+
+        if (false == IdEnum.Contains('.'))
+        {
+            return new int[] { int.Parse(IdEnum) };
+        }
 
         for (int index = 0; index < splitByComma.Length; ++index)
         {
-            values[index] = (T)Enum.ToObject(typeof(T), splitByComma[index]);
+            ids[index] = int.Parse(IdEnum);
         }
 
-        return values;
+        return ids;
+    }
+
+    /// <summary>
+    /// 리스트의 인덱스가 존재하는지 여부를 판단하여 반환하는 메소드입니다.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="array">리스트</param>
+    /// <param name="index">인덱스</param>
+    public static bool ArrayIndexExists<T>(T[] array, int index)
+    {
+        return index >= 0 && index < array.Length;
     }
 }
