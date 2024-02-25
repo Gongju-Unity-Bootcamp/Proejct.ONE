@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Collections;
 using System;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using UnityEditor.SceneTemplate;
+using UnityEngine;
+using System.Linq;
 
 public class PlayerActionPopup : UIPopup
 {
@@ -52,6 +54,8 @@ public class PlayerActionPopup : UIPopup
                 skillButtons.Add(buttonIndex, data);
                 SetSpriteStateInButton(button, data);
                 UpdateTurnActionIndicator(data);
+                UpdateNewFocusImage(data);
+
                 button.BindViewEvent(OnEnterButton, ViewEvent.Enter, this);
                 button.BindViewEvent(OnExitButton, ViewEvent.Exit, this);
                 button.BindViewEvent(OnLeftClickButton, ViewEvent.LeftClick, this);
@@ -72,28 +76,20 @@ public class PlayerActionPopup : UIPopup
         SpriteState spriteState = button.spriteState;
 
         button.image.sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon));
-        spriteState.selectedSprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.H));
-        spriteState.highlightedSprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.H));
+        spriteState.selectedSprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.HOVER));
+        spriteState.highlightedSprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.HOVER));
     }
 
     private void OnEnterButton(PointerEventData eventData)
     {
         Buttons button = Enum.Parse<Buttons>(eventData.pointerEnter.name);
-
-        if (skillButtons[button] != null)
-        {
-            UpdateTurnActionIndicator(skillButtons[button]);
-        }
+        UpdateTurnActionIndicator(skillButtons[button]);
     }
 
     private void OnExitButton(PointerEventData eventData)
     {
         Buttons button = Enum.Parse<Buttons>(eventData.pointerEnter.name);
-
-        if (skillButtons[button] != null)
-        {
-            UpdateNewFocusImage(skillButtons[button]);
-        }
+        UpdateNewFocusImage(skillButtons[button]);
     }
 
     private void OnLeftClickButton(PointerEventData eventData)
@@ -101,26 +97,27 @@ public class PlayerActionPopup : UIPopup
         Buttons button = Enum.Parse<Buttons>(eventData.pointerEnter.name);
         Character character = Managers.Stage.turnCharacter.Value;
 
-        if (character.IsCharacterAttack())
+        if (false == character.IsCharacterAttack())
         {
-            return;
-        }
+            Character targetCharacter = Managers.Stage.selectCharacter.Value;
+            Skill skill = character.GetSkillEffect(character.currentSkill.Value);
 
-        if (skillButtons[button] != null)
-        {
+            int damage = Define.Calculate.Damage(character.currentAttack.Value
+            + skill.Damage, targetCharacter.currentDefense.Value,
+            character.currentLuck.Value);
+
+            focusCount = character.maxFocus.Value - character.currentFocus.Value;
+
+            Managers.Game.Player.slotAccuracyDamage = Define.Calculate.Accuracy(damage, focusCount, character.currentAccuracy.Value);
             Managers.Game.Player.AttackAction();
-            UpdateAccuracyFocusImage(skillButtons[button]);
+            StartCoroutine(UpdateAccuracyFocusImage(skillButtons[button]));
         }
     }
 
     private void OnRightClickButton(PointerEventData eventData)
     {
         Buttons button = Enum.Parse<Buttons>(eventData.pointerEnter.name);
-
-        if (skillButtons[button] != null)
-        {
-            UpdateFocusIndicator(skillButtons[button]);
-        }
+        UpdateFocusIndicator(skillButtons[button]);
     }
 
     private void UpdateTurnActionIndicator(SkillData data)
@@ -130,13 +127,9 @@ public class PlayerActionPopup : UIPopup
         EquipmentData equipmentData = Managers.Data.Equipment[character.equipmentId.Value];
         character.currentSkill.Value = data;
 
-        GetText((int)Texts.SkillInfoText).text
-            = $"행운({character.currentLuck.Value}%) = {data.Damage} 스킬 공격력";
-        GetText((int)Texts.DamageText).text
-            = Define.Calculate.Damage(character.currentAttack.Value
-            + data.Damage, targetCharacter.currentDefense.Value).ToString();
-        GetText((int)Texts.SlotAccuracyText).text
-            = Define.Calculate.LuckOrAccuracy(data.Accuracy, equipmentData.Accuracy).ToString();
+        GetText((int)Texts.SkillInfoText).text = $"행운({character.currentLuck.Value}%) = {data.Damage} 스킬 공격력";
+        GetText((int)Texts.DamageText).text = Define.Calculate.Damage(character.currentAttack.Value + data.Damage, targetCharacter.currentDefense.Value).ToString();
+        GetText((int)Texts.SlotAccuracyText).text = Define.Calculate.LuckOrAccuracy(data.Accuracy, equipmentData.Accuracy).ToString();
         GetText((int)Texts.SkillNameText).text = data.Name;
     }
 
@@ -172,13 +165,12 @@ public class PlayerActionPopup : UIPopup
         {
             if (index >= focusCount)
             {
-                GetImage((int)imageIndex).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SLOTH));
-            }
-            else
-            {
-                GetImage((int)imageIndex).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SLOT));
+                GetImage((int)imageIndex).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FOCUS));
+
+                continue;
             }
 
+            GetImage((int)imageIndex).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.BASIC));
             ++index;
         }
     }
@@ -196,23 +188,39 @@ public class PlayerActionPopup : UIPopup
 
         foreach (Images imageIndex in Enum.GetValues(typeof(Images)))
         {
-            GetImage((int)imageIndex).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SLOT));
+            GetImage((int)imageIndex).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.BASIC));
         }
     }
 
-    private void UpdateAccuracyFocusImage(SkillData data)
+    private IEnumerator UpdateAccuracyFocusImage(SkillData data)
     {
-        int index = 0;
+        int index = 2;
 
-        foreach (KeyValuePair<bool, int> pair in Managers.Game.Player.slotAccuracyDamage)
+        foreach (bool isSuccessSlot in Managers.Game.Player.slotAccuracyDamage.SelectMany(value => value.Keys).Select(x => x))
         {
-            if (pair.Key)
+            Debug.Log(index);
+            Debug.Log(focusCount);
+            if (true == isSuccessSlot)
             {
-                GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SLOTF));
+                GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SUCCESS));
+                
+                if (index == focusCount)
+                {
+                    GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FOCUS));
+                }
+                if (index < focusCount)
+                {
+                    GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FOCUS));
+                }
             }
-            ++index;
-        }
+            else
+            {
+                GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FAIL));
+            }
 
-        Managers.Game.Player.slotAccuracyDamage = null;
+            --index;
+
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 }

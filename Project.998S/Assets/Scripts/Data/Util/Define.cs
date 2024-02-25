@@ -1,16 +1,18 @@
-using System;
 using System.Collections.Generic;
+using System;
 using Random = UnityEngine.Random;
+using UnityEngine;
 
 public static class Define
 {
     public static class Keyword
     {
-        public const string H = "H";
-        public const string SLOT = "S";
         public const string INFO = "I";
-        public const string SLOTH = "SH";
-        public const string SLOTF = "SF";
+        public const string HOVER = "H";
+        public const string BASIC = "Basic";
+        public const string SUCCESS = "Success";
+        public const string FOCUS = "Focus";
+        public const string FAIL = "Fail";
 
         public const string DOOR = "hildebrantDoor";
     }
@@ -93,21 +95,28 @@ public static class Define
         /// </summary>
         /// <param name="damage">데미지</param>
         /// <param name="accuracy">정확도</param>
-        public static Dictionary<bool, int> Accuracy(int damage, int accuracy = 0)
+        public static List<Dictionary<bool, int>> Accuracy(int damage, int focus = 0, int accuracy = 0)
         {
-            Dictionary<bool, int> result = new Dictionary<bool, int>();
+            List<Dictionary<bool, int>> result = new List<Dictionary<bool, int>>();
 
             for (int index = 0; index < MAX_SLOT; ++index)
             {
+                if (index < focus)
+                {
+                    result.Add(Utils.ReturnDictionary(true, damage));
+
+                    continue;
+                }
+
                 bool isCheckChance = IsChance(accuracy);
 
                 if (isCheckChance)
                 {
-                    result[isCheckChance] = damage;
+                    result.Add(Utils.ReturnDictionary(isCheckChance, damage));
                 }
                 else
                 {
-                    result[isCheckChance] = Convert.ToInt32(damage * SLOT_LOSS);
+                    result.Add(Utils.ReturnDictionary(isCheckChance, Convert.ToInt32(damage * SLOT_LOSS)));
                 }
             }
 

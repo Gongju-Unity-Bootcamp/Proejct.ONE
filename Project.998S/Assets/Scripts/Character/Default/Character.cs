@@ -250,6 +250,7 @@ public abstract class Character : MonoBehaviour
         skill.Damage = data.Damage;
         skill.Accuracy = data.Accuracy;
         maxAccuracy.Value = Managers.Data.Equipment[equipmentId.Value].Accuracy + skill.Accuracy;
+        currentAccuracy.Value = maxAccuracy.Value;
         effectIds.Value = Utils.ReferenceDataByIdEnum(data.IdEffectEnum);
 
         for (int index = 0; index < effectIds.Value.Length; ++ index)

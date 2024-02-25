@@ -8,7 +8,7 @@ using UnityEngine;
 
 public abstract class Controller : MonoBehaviour
 {
-    [HideInInspector] public Dictionary<bool, int> slotAccuracyDamage { get; set; }
+    [HideInInspector] public List<Dictionary<bool, int>> slotAccuracyDamage { get; set; }
     [HideInInspector] public ReactiveProperty<bool> isAllCharacterDead { get; set; }
 
     protected bool[] isCharacterDead;
@@ -21,7 +21,7 @@ public abstract class Controller : MonoBehaviour
 
     public virtual void Init()
     {
-        slotAccuracyDamage = new Dictionary<bool, int>();
+        slotAccuracyDamage = new List<Dictionary<bool, int>>();
         isAllCharacterDead = new ReactiveProperty<bool>();
         isCharacterDead = new bool[SpawnManager.MAX_CHARACTER_COUNT];
         target = Managers.Stage.target;
@@ -106,12 +106,7 @@ public abstract class Controller : MonoBehaviour
         .Subscribe(_ => 
         {
             character.isAttack.Value = false;
-            int damage = Define.Calculate.Damage(character.currentAttack.Value
-            + skill.Damage, targetCharacter.currentDefense.Value, 
-            character.currentLuck.Value);
-            slotAccuracyDamage = Define.Calculate.Accuracy(damage, character.currentAccuracy.Value);
-            int totalDamage = slotAccuracyDamage.Values.Max();
-
+            int totalDamage = slotAccuracyDamage.Select(dictionary => dictionary.Values.Min()).Min();
             targetCharacter.GetDamage(totalDamage);
 
             StartCoroutine(DelayForEndTurn(Managers.Stage.turnDelay, targetCharacter));
