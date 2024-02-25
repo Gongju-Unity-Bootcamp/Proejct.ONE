@@ -1,57 +1,75 @@
+using System;
 using UniRx;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     [HideInInspector] public ReactiveProperty<int> round { get; set; }
-    [HideInInspector] public ReactiveProperty<Character> selectCharacter { get; set; }
-    [HideInInspector] public GameObject target { get; set; }
+    [HideInInspector] public PlayerController Player { get; private set; }
+    [HideInInspector] public EnemyController Enemy { get; private set; }
+
+    private IDisposable updateGameAsObservable;
 
     public void Init()
     {
-        selectCharacter = new ReactiveProperty<Character>();
+        round = new ReactiveProperty<int>();
 
-        GameObject go = new GameObject(nameof(Controller));
-        go.AddComponent<PlayerController>();
-        go.AddComponent<EnemyController>();
-
-        PrefabData data = Managers.Data.Prefab[(int)PrefabID.Highlight];
-
-        GameStart((StageID)1 , data);
+        GameStart((StageID)1); //
     }
-
-    public void GameStart(StageID id, PrefabData data)
+    
+    public void InitController()
     {
-        Managers.Stage.CreateDungeon(id);
-        Managers.Stage.UpdateTurnAsObservable();
+        GameObject gameObject;
+
+        gameObject = new GameObject(nameof(PlayerController));
+        gameObject.transform.parent = transform;
+        Player = gameObject.AddComponent<PlayerController>();
+
+        gameObject = new GameObject(nameof(EnemyController));
+        gameObject.transform.parent = transform;
+        gameObject.AddComponent<EnemyController>();
+        Enemy = gameObject.AddComponent<EnemyController>();
+
+        Player.Init();
+        Enemy.Init();
+    } 
+
+    public void GameStart(StageID id)
+    {
+        Managers.Spawn.StageByID(id);
+        Managers.Stage.turnCount.Value = 0;
+        Managers.Stage.UpdateTurn();
+        round.Value = (int)id;
+
         Managers.UI.OpenPopup<HUDPopup>();
-        UpdateSelectCharacterAsObservable(data);
-    }
 
-    private void UpdateSelectCharacterAsObservable(PrefabData data)
-    {
-        target = Managers.Resource.Instantiate(data.Prefab);
-        target.transform.position = Managers.Spawn.footboards[SpawnManager.ENEMY_CENTER];
-        selectCharacter.Value = Managers.Stage.enemies[Managers.Stage.PREVIEW].GetCharacterInGameObject<Character>();
+        InitController();
 
-        selectCharacter.Subscribe(character =>
+        Player.isAllCharacterDead.Subscribe(isAllDead =>
         {
-            if (character == null)
+            if (isAllDead)
             {
-                return;
+                GameFail();
             }
-
-            selectCharacter.Value.ChangeCharacterState(CharacterState.Idle);
-            Debug.Log($"[GameManager] Selected character : {selectCharacter.Value.gameObject.transform.position.x}, {selectCharacter.Value}");
-
-            SelectTarget(character);
-            target.gameObject.SetActive(true);
-            Managers.Stage.turnCharacter.Value.LookAtTarget(character.transform);
+        });
+        Enemy.isAllCharacterDead.Subscribe(isAllDead =>
+        {
+            if (isAllDead)
+            {
+                GameNext();
+            }
         });
     }
-    public void SelectTarget(Character character)
+
+    public void GameNext()
     {
-        target.transform.position = character.transform.position;
-        target.gameObject.SetActive(false);
+        ++round.Value;
+        Managers.Stage.NextDungeon((StageID)round.Value);
+    }
+
+    public void GameFail()
+    {
+        round.Value = 0;
+        GameStart((StageID)1);
     }
 }

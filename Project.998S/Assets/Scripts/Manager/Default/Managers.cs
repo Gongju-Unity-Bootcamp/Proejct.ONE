@@ -22,33 +22,33 @@ public class Managers : MonoBehaviour
     {
         if (Instance != null)
         {
-            Destroy(gameObject);
+            Destroy(this);
             return;
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        DontDestroyOnLoad(this);
 
-        GameObject go;
+        GameObject gameObject;
 
         Data = new DataManager();
         Storage = new StorageManager();
         Resource = new ResourceManager();
         Spawn = new SpawnManager();
 
-        go = new GameObject(nameof(StageManager));
-        go.transform.parent = transform;
-        Stage = go.AddComponent<StageManager>();
+        gameObject = new GameObject(nameof(StageManager));
+        gameObject.transform.parent = transform;
+        Stage = gameObject.AddComponent<StageManager>();
 
-        go = new GameObject(nameof(SoundManager));
-        go.transform.parent = transform;
-        Sound = go.AddComponent<SoundManager>();
+        gameObject = new GameObject(nameof(SoundManager));
+        gameObject.transform.parent = transform;
+        Sound = gameObject.AddComponent<SoundManager>();
 
         UI = new UIManager();
 
-        go = new GameObject(nameof(GameManager));
-        go.transform.parent = transform;
-        Game = go.AddComponent<GameManager>();
+        gameObject = new GameObject(nameof(GameManager));
+        gameObject.transform.parent = transform;
+        Game = gameObject.AddComponent<GameManager>();
 
         Data.Init();
         Storage.Init();

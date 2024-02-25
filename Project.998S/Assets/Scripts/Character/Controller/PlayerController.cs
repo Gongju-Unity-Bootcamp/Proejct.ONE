@@ -1,14 +1,19 @@
+using System.Collections;
 using System.Linq;
 using UniRx;
 using UnityEngine;
+
+public enum PlayerActionState
+{
+    Attack,
+    Defense
+}
 
 public class PlayerController : Controller
 {
     public override void Init()
     {
         base.Init();
-
-        UpdateTurnAsObservable(Managers.Stage.isPlayerTurn);
     }
 
     protected override void UpdateActionAsObservable()
@@ -23,13 +28,13 @@ public class PlayerController : Controller
                     return;
                 }
 
-                if (true == character.IsCharacterDead())
+                if (true == Managers.Stage.turnCharacter.Value.IsCharacterAttack())
                 {
                     return;
                 }
 
                 CheckCharacterType(character, typeof(Enemy));
-            }).AddTo(this);
+            });
     }
 
     protected override Character GetSelectCharacter()
@@ -47,21 +52,28 @@ public class PlayerController : Controller
         return null;
     }
 
-    protected override void SelectCharacterAtFirstTurn()
+    protected override void StartTurn()
     {
+        StageManager stage = Managers.Stage;
+        Character character = stage.enemies[SpawnManager.CHARACTER_CENTER];
+        Managers.Stage.AllCharacterLookAtTarget(stage.turnCharacter.Value);
 
+        if (false == character.IsCharacterDead())
+        {
+            CheckCharacterType(stage.enemies[SpawnManager.CHARACTER_CENTER], typeof(Enemy));
+        }
+        else
+        {
+            CheckCharacterType(GetRandomCharacterInList(stage.enemies), typeof(Enemy));
+        }
+
+        Managers.UI.OpenPopup<PlayerActionPopup>();
     }
 
-    protected override void ReturnCheckCharacterType(Character enemy)
+    protected override IEnumerator DelayForEndTurn(float delay, Character character)
     {
-        Character turnCharacter = Managers.Stage.turnCharacter.Value;
+        Managers.UI.ClosePopupUI();
 
-        target.SetActive(true);
-        turnCharacter.ChangeCharacterState(CharacterState.NormalAttack);
-        enemy.GetDamage(turnCharacter.currentAttack.Value);
-        Debug.Log($"{enemy} Health : {enemy.currentHealth.Value}");
-        turnCharacter.ChangeCharacterState(CharacterState.Idle);
-
-        Managers.Stage.NextTurn();
+        return base.DelayForEndTurn(delay, character);
     }
 }

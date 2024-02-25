@@ -148,7 +148,15 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.4978166
+        functionName: Attack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: af2cc067c37ad304c81cbc87d6ac31fb,
+          type: 3}
+        floatParameter: 0
+        intParameter: 5
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}
@@ -235,7 +243,15 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.23911199
+        functionName: Attack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: af2cc067c37ad304c81cbc87d6ac31fb,
+          type: 3}
+        floatParameter: 0
+        intParameter: 4
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}
@@ -264,7 +280,23 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
-      events: []
+      events:
+      - time: 0.25855055
+        functionName: Attack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: 5922bb1d7b17eef45827db2e6c94e891,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.21555218
+        functionName: Attack
+        data: 
+        objectReferenceParameter: {fileID: 11500000, guid: af2cc067c37ad304c81cbc87d6ac31fb,
+          type: 3}
+        floatParameter: 0
+        intParameter: 6
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}

@@ -41,15 +41,17 @@ public class EnemyHUDSubItem : UISubItem
             }
         }
 
-        CharacterID id = Managers.Stage.enemies[enemyIndex].characterId;
+        Enemy enemy = Managers.Stage.enemies[enemyIndex].GetCharacterInGameObject<Enemy>();
+        CharacterID id = enemy.characterId.Value;
         CharacterData data = Managers.Data.Character[id];
 
         SetNameText(data);
         SetRenderTexture(data);
 
-        Managers.Stage.enemies[enemyIndex].currentHealth.BindModelEvent(UpdateHealthIndicator, this);
-        Managers.Stage.enemies[enemyIndex].level.BindModelEvent(UpdateLevelText, this);
+        enemy.currentHealth.BindModelEvent(UpdateHealthIndicator, this);
+        enemy.level.BindModelEvent(UpdateLevelText, this);
     }
+
     private void SetNameText(CharacterData data)
     {
         GetText((int)Texts.EnemyNameText).text = data.Name;
