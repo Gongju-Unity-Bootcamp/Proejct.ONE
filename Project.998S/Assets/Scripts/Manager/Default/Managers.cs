@@ -16,7 +16,6 @@ public class Managers : MonoBehaviour
     private void Awake()
     {
         Init();
-        UI.OpenPopup<TitlePopup>();
     }
 
     private void Init()

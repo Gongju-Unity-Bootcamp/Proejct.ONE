@@ -41,7 +41,7 @@ public class GameManager : MonoBehaviour
         Managers.Stage.UpdateTurn();
         round.Value = (int)id;
 
-        //Managers.UI.OpenPopup<HUDPopup>();
+        Managers.UI.OpenPopup<HUDPopup>();
 
         InitController();
 

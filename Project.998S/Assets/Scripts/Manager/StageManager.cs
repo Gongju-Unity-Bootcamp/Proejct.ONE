@@ -55,7 +55,7 @@ public class StageManager : MonoBehaviour
                 NextCharacterTurn();
                 return;
             }
-
+            Debug.Log($"{turnCount}");
             turnCharacter.Value = character;
             ChangeCharacterTurn(turnCharacter.Value);
             turnQueue.Enqueue(character);

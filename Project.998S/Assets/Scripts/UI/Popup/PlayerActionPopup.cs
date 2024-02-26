@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using System;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine;
-using System.Linq;
 
 public class PlayerActionPopup : UIPopup
 {
@@ -107,7 +107,7 @@ public class PlayerActionPopup : UIPopup
             character.currentLuck.Value);
 
             focusCount = character.maxFocus.Value - character.currentFocus.Value;
-
+            character.maxFocus.Value = focusCount;
             Managers.Game.Player.slotAccuracyDamage = Define.Calculate.Accuracy(damage, focusCount, character.currentAccuracy.Value);
             Managers.Game.Player.AttackAction();
             StartCoroutine(UpdateAccuracyFocusImage(skillButtons[button]));
@@ -194,34 +194,27 @@ public class PlayerActionPopup : UIPopup
 
     private IEnumerator UpdateAccuracyFocusImage(SkillData data)
     {
-        int index = 2;
+        int index = 3;
 
         foreach (bool isSuccessSlot in Managers.Game.Player.slotAccuracyDamage.SelectMany(value => value.Keys))
         {
-            Debug.Log(isSuccessSlot);
-            if(true == isSuccessSlot)
+            --index;
+
+            if (true == isSuccessSlot)
             {
                 if (focusCount == 0)
                 {
                     GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SUCCESS));
-                    
-                    
-                    //Debug.Log(focusCount);
+                    continue;                
                 }
-                else if (index >= focusCount || index <= focusCount)
-                {
-                    GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FOCUS));
-                    --focusCount;
-                }
-            }
-            
-            else
-            {
-                GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FAIL));
-            }
-            
 
-            --index;
+                GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FOCUS));
+                --focusCount;
+
+                continue;
+            }
+
+            GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FAIL));
 
             yield return new WaitForSeconds(0.1f);
         }
