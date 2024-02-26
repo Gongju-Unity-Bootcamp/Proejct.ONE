@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using System.Collections;
+using System.Linq;
 using UniRx;
 using UnityEngine;
-using System.Linq;
 
 public class StageManager : MonoBehaviour
 {
@@ -10,7 +9,6 @@ public class StageManager : MonoBehaviour
     [HideInInspector] public List<Character> enemies { get; set; }
     [HideInInspector] public List<Character> players { get; set; }
 
-    [HideInInspector] public float turnDelay { get; private set; }
     [HideInInspector] public Queue<Character> turnQueue { get; private set; }
 
     [HideInInspector] public ReactiveProperty<int> turnCount { get; set; }
@@ -28,7 +26,6 @@ public class StageManager : MonoBehaviour
         enemies = new List<Character>();
         players = new List<Character>();
 
-        turnDelay = 1f;
         turnQueue = new Queue<Character>();
 
         turnCount = new ReactiveProperty<int>();
@@ -61,22 +58,24 @@ public class StageManager : MonoBehaviour
 
             turnCharacter.Value = character;
             ChangeCharacterTurn(turnCharacter.Value);
+            turnQueue.Enqueue(character);
         });
     }
 
     private void UpdateSelectCharacterAsObservable()
     {
-        selectCharacter.Subscribe(character =>
-        {
-            if (character == null)
+        selectCharacter.Where(_ => selectCharacter != null)
+            .Subscribe(character =>
             {
-                return;
-            }
+                if (character == null)
+                {
+                    return;
+                }
 
-            SelectTarget(character);
-            character.ChangeCharacterState(CharacterState.Idle);
-            turnCharacter.Value.LookAtTarget(character.transform);
-        });
+                SelectTarget(character);
+                character.ChangeCharacterState(CharacterState.Idle);
+                turnCharacter.Value.LookAtTarget(character.transform);
+            });
     }
 
     private void ChangeCharacterTurn(Character character)
@@ -98,7 +97,7 @@ public class StageManager : MonoBehaviour
 
     public void AllCharacterLookAtTarget(Character character)
     {
-        bool isTypePlayer = character.GetCharacterTypeInGameObject<Player>() == typeof(Player);
+        bool isTypePlayer = character.GetType() == typeof(Player) ? true : false;
         List<Character> characters = isTypePlayer ? enemies : players;
 
         foreach (Character otherCharacter in characters)

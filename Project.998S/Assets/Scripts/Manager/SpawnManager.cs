@@ -81,18 +81,18 @@ public class SpawnManager
 
     private void EnqueueAllCharacter()
     {
-        StageManager stage = Managers.Stage;
+        Queue<Character> turnQueue = Managers.Stage.turnQueue;
 
-        for (int index = 0; index < ENEMY_RIGHT; ++index)
+        for (int index = 0; index < PREVIEW_LEFT; ++index)
         {
             if (index < ENEMY_LEFT)
             {
-                stage.turnQueue.Enqueue(stage.players[index]);
+                turnQueue.Enqueue(Managers.Stage.players[index]);
 
                 continue;
             }
 
-            stage.turnQueue.Enqueue(stage.enemies[index / ENEMY_RIGHT]);
+            turnQueue.Enqueue(Managers.Stage.enemies[index - ENEMY_LEFT]);
         }
     }
 
