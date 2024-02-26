@@ -3071,8 +3071,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: playerId
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: d0088697bdec4ee4fa909d785eda6ab1, type: 2}
-  m_sharedMaterial: {fileID: -3738310992973907084, guid: d0088697bdec4ee4fa909d785eda6ab1,
+  m_fontAsset: {fileID: 11400000, guid: 916c3f050eb34074488710587aae8daa, type: 2}
+  m_sharedMaterial: {fileID: 3870729641951871701, guid: 916c3f050eb34074488710587aae8daa,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
