@@ -196,27 +196,30 @@ public class PlayerActionPopup : UIPopup
     {
         int index = 2;
 
-        foreach (bool isSuccessSlot in Managers.Game.Player.slotAccuracyDamage.SelectMany(value => value.Keys).Select(x => x))
+        foreach (bool isSuccessSlot in Managers.Game.Player.slotAccuracyDamage.SelectMany(value => value.Keys))
         {
-            Debug.Log(index);
-            Debug.Log(focusCount);
-            if (true == isSuccessSlot)
+            Debug.Log(isSuccessSlot);
+            if(true == isSuccessSlot)
             {
-                GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SUCCESS));
-                
-                if (index == focusCount)
+                if (focusCount == 0)
                 {
-                    GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FOCUS));
+                    GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SUCCESS));
+                    
+                    
+                    //Debug.Log(focusCount);
                 }
-                if (index < focusCount)
+                else if (index >= focusCount || index <= focusCount)
                 {
                     GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FOCUS));
+                    --focusCount;
                 }
             }
+            
             else
             {
                 GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FAIL));
             }
+            
 
             --index;
 
