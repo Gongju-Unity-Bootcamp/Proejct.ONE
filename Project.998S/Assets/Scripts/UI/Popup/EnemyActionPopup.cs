@@ -1,7 +1,8 @@
-using System;
 using System.Collections;
 using System.Linq;
+using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class EnemyActionPopup : UIPopup
 {
@@ -26,11 +27,11 @@ public class EnemyActionPopup : UIPopup
 
     private IEnumerator UpdateAccuracyFocusImage(SkillData data)
     {
-        int index = 3;
+        int index = -1;
 
-        foreach (bool isSuccessSlot in Managers.Game.Player.slotAccuracyDamage.SelectMany(value => value.Keys))
+        foreach (bool isSuccessSlot in Managers.Game.Enemy.slotAccuracyDamage.SelectMany(value => value.Keys))
         {
-            --index;
+            ++index;
             yield return new WaitForSeconds(0.1f);
 
             if (true == isSuccessSlot)

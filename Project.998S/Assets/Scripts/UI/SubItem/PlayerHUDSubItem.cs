@@ -103,20 +103,15 @@ public class PlayerHUDSubItem : UISubItem
 
     private void UpdateFocusIndicator(int focus)
     {
-        int index = 0;
-
-        foreach (Images imageIndex in focusImages)
+        for (int index = 0; index < focusImages.Length; ++index)
         {
             if (index >= focus)
             {
-                GetImage((int)imageIndex).gameObject.SetActive(false);
-            }
-            else
-            {
-                GetImage((int)imageIndex).gameObject.SetActive(true);
-            }
+                GetImage((int)focusImages[index]).gameObject.SetActive(false);
 
-            ++index;
+                continue;
+            }
+            GetImage((int)focusImages[index]).gameObject.SetActive(true);
         }
     }
 
@@ -136,20 +131,18 @@ public class PlayerHUDSubItem : UISubItem
     private void UpdateSkillIndicator(int[] skills)
     {
         int skillCount = Managers.Stage.players[playerIndex].skillIds.Value.Length;
-        int index = 0;
 
-        foreach (Images imageIndex in skillImages)
+        for (int index = 0; index < skillImages.Length; ++index)
         {
             if (index < skillCount)
             {
                 SkillData skilldata = Managers.Data.Skill[(SkillID)skills[index]];
-                GetImage((int)imageIndex).sprite = Managers.Resource.LoadSprite(string.Concat(skilldata.Icon, Define.Keyword.INFO));
-                ++index;
+                GetImage((int)skillImages[index]).sprite = Managers.Resource.LoadSprite(string.Concat(skilldata.Icon, Define.Keyword.INFO));
 
                 continue;
             }
 
-            GetImage((int)imageIndex).gameObject.SetActive(false);
+            GetImage((int)skillImages[index]).gameObject.SetActive(false);
         }
     }
 }
