@@ -158,5 +158,18 @@ public static class Define
 
             return false;
         }
+
+        /// <summary>
+        /// 보간값을 설정하여 위치값을 조정합니다.
+        /// </summary>
+        /// <param name="cardinate">임계값</param>
+        /// <param name="adjustment">보간값</param>
+        public static int AdjustCardinate(int cardinate, int adjustment = 0)
+        {
+            int random = Random.Range(-5, 5);
+            int adjust = cardinate + adjustment + random;
+
+            return Mathf.Clamp(adjust, 0, 100);
+        }
     }
 }

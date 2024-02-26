@@ -1,5 +1,5 @@
-using System.Collections;
 using System.Linq;
+using System;
 using UniRx;
 using UnityEngine;
 
@@ -14,6 +14,8 @@ public class PlayerController : Controller
     public override void Init()
     {
         base.Init();
+
+        UpdateTurnAsObservable(Managers.Stage.isPlayerTurn);
     }
 
     protected override void UpdateActionAsObservable()
@@ -33,11 +35,28 @@ public class PlayerController : Controller
                     return;
                 }
 
+                isSelectCharacter.Value = true;
                 CheckCharacterType(character, typeof(Enemy));
             });
     }
 
-    protected override Character GetSelectCharacter()
+    protected override void StartTurn(ReactiveProperty<bool> isCharacterTurn)
+    {
+        StageManager stage = Managers.Stage;
+        Character character = stage.enemies[SpawnManager.CHARACTER_CENTER];
+        Managers.UI.OpenPopup<PlayerActionPopup>();
+
+        if (false == character.IsCharacterDead())
+        {
+            CheckCharacterType(character, typeof(Enemy));
+
+            return;
+        }
+
+        CheckCharacterType(GetCharacterByRandomInList(stage.enemies), typeof(Enemy));
+    }
+
+    private Character GetSelectCharacter()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -52,28 +71,13 @@ public class PlayerController : Controller
         return null;
     }
 
-    protected override void StartTurn()
+    private void CheckCharacterType(Character character, Type targetType)
     {
-        StageManager stage = Managers.Stage;
-        Character character = stage.enemies[SpawnManager.CHARACTER_CENTER];
-        Managers.Stage.AllCharacterLookAtTarget(stage.turnCharacter.Value);
-
-        if (false == character.IsCharacterDead())
+        if (character.GetType() != targetType)
         {
-            CheckCharacterType(stage.enemies[SpawnManager.CHARACTER_CENTER], typeof(Enemy));
-        }
-        else
-        {
-            CheckCharacterType(GetRandomCharacterInList(stage.enemies), typeof(Enemy));
+            return;
         }
 
-        Managers.UI.OpenPopup<PlayerActionPopup>();
-    }
-
-    protected override IEnumerator DelayForEndTurn(float delay, Character character)
-    {
-        Managers.UI.ClosePopupUI();
-
-        return base.DelayForEndTurn(delay, character);
+        Managers.Stage.selectCharacter.Value = character;
     }
 }
