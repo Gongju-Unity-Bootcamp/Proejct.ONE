@@ -14,20 +14,18 @@ public class GameManager : MonoBehaviour
     public void Init()
     {
         round = new ReactiveProperty<int>();
+
+        var playerControllerGameObject = new GameObject(nameof(PlayerController));
+        playerControllerGameObject.transform.parent = transform;
+        Player = playerControllerGameObject.AddComponent<PlayerController>();
+
+        var enemyControllerGameObject = new GameObject(nameof(EnemyController));
+        enemyControllerGameObject.transform.parent = transform;
+        Enemy = enemyControllerGameObject.AddComponent<EnemyController>();
     }
-    
+
     public void InitController()
     {
-        GameObject gameObject;
-
-        gameObject = new GameObject(nameof(PlayerController));
-        gameObject.transform.parent = transform;
-        Player = gameObject.AddComponent<PlayerController>();
-
-        gameObject = new GameObject(nameof(EnemyController));
-        gameObject.transform.parent = transform;
-        Enemy = gameObject.AddComponent<EnemyController>();
-
         Player.Init();
         Enemy.Init();
     } 
