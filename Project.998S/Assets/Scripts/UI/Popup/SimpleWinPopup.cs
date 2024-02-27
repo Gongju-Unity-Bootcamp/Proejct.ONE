@@ -18,6 +18,6 @@ public class SimpleWinPopup : UIPopup
 
     private void ProcessExit(PointerEventData eventData)
     {
-        Managers.Game.NextRound();
+
     }
 }

@@ -42,21 +42,6 @@ public class GameManager : MonoBehaviour
         Managers.UI.OpenPopup<HUDPopup>();
 
         InitController();
-
-        Player.isAllEnemyCharacterDead.Subscribe(isAllDead =>
-        {
-            if (isAllDead)
-            {
-                GameClear();
-            }
-        });
-        Enemy.isAllEnemyCharacterDead.Subscribe(isAllDead =>
-        {
-            if (isAllDead)
-            {
-                GameFail();
-            }
-        });
     }
     private void CameraMove()
     {
@@ -64,18 +49,35 @@ public class GameManager : MonoBehaviour
     }
     public void GameClear()
     {
+        Managers.UI.CloseAllPopupUI();
         Managers.UI.OpenPopup<SimpleWinPopup>();
     }
 
     public void GameFail()
     {
+                Managers.UI.CloseAllPopupUI();
         round.Value = 0; // NOTE : 게임 실패 UI
         Managers.UI.OpenPopup<DeathPopup>();
     }
 
     public void NextRound()
     {
-        ++round.Value;
+        // NOTE : 현재 유효한 라운드는 1-2임.
+
+        // value = 1 => 2 => 1 + 1 => 2 - 1 * -1
+        // value = 2 => 1 => 2 - 1 => 2 - 1 * 1
+
+        int newRoundValue = round.Value + 1;
+        if (newRoundValue == 3)
+        {
+            newRoundValue = 1;
+        }
+        round.Value = newRoundValue;
         Managers.Stage.NextDungeon((StageID)round.Value);
+
+        Managers.Stage.NextCharacterTurn();
+        
+        Managers.UI.CloseAllPopupUI();
+        Managers.UI.OpenPopup<HUDPopup>();
     }
 }

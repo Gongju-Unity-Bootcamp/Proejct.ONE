@@ -1,13 +1,10 @@
 using System.Collections.Generic;
 using System.Collections;
 using System;
-using UniRx;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine;
-using UnityEngine.InputSystem.Utilities;
-using System.Linq;
-using JetBrains.Annotations;
+using Unity.Mathematics;
 
 public class PlayerActionPopup : UIPopup
 {
@@ -91,9 +88,10 @@ public class PlayerActionPopup : UIPopup
 
         skills = new Dictionary<Buttons, SkillData>();
         player = Managers.Stage.turnCharacter.Value.GetCharacterInGameObject<Player>();
-        equipmentData = Managers.Data.Equipment[player.equipmentId.Value];
-        dataIndex = player.skillIdEnum.Value;
-        playerSkillCount = player.skillIdEnum.Value.Length;
+        Character character = Managers.Stage.turnCharacter.Value;
+        equipmentData = Managers.Data.Equipment[character.equipmentId.Value];
+        dataIndex = character.skillIdEnum.Value;
+        playerSkillCount = character.skillIdEnum.Value.Length;
         targetCharacter = Managers.Stage.selectCharacter.Value;
 
         oldFocusCount = Managers.Stage.turnCharacter.Value.currentFocus.Value;
@@ -148,10 +146,13 @@ public class PlayerActionPopup : UIPopup
             oldFocusCount = Managers.Stage.turnCharacter.Value.currentFocus.Value;
 
             DetermineRemainSlotSuccess();
-            Managers.Game.Player.AttackDamage = CalculateDamage();
+            Managers.Game.Player.AttackDamage = CalculateDamage(skills[button]);
             Managers.Stage.turnCharacter.Value.currentSkill.Value = skillData;
-            Managers.Game.Player.AttackAction();
 
+            Debug.Log(Managers.Game.Player.AttackDamage + " case : 4 ");
+
+            Managers.Game.Player.AttackAction();
+            Managers.Game.Player.isAttack = true;
             StartCoroutine(UpdateSlotIndicatorCo(skillData));
         }
     }
@@ -174,7 +175,7 @@ public class PlayerActionPopup : UIPopup
         }
     }
 
-    private int CalculateDamage()
+    private int CalculateDamage(SkillData data)
     {
         int successCount = 0;
         for (int index = 0; index < slotStates.Length; ++index)
@@ -190,7 +191,7 @@ public class PlayerActionPopup : UIPopup
                 player.currentAttack.Value + skillData.Damage,
                 targetCharacter.currentDefense.Value,
                 player.currentLuck.Value);
-        damage = Math.Max(1, damage * (successCount / 3));
+        damage = Math.Max(1, Convert.ToInt32(damage * (successCount / 3f)));
 
         return damage;
     }
