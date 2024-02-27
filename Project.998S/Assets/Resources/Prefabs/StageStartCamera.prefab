@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1164597213072479835}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.018869348, y: -0.0066749193, z: -0.00012597658, w: 0.99979967}
+  m_LocalRotation: {x: -0.008948232, y: 0.00023363145, z: 0.0000020906718, w: 0.99995995}
   m_LocalPosition: {x: 0, y: 1, z: -23.543072}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Path: {fileID: 9206200758817744485}
   m_UpdateMethod: 0
   m_PositionUnits: 1
-  m_Speed: 7
+  m_Speed: 6
   m_Position: 0
 --- !u!1 &2066456163480252483
 GameObject:
@@ -62,6 +62,7 @@ GameObject:
   - component: {fileID: 6347101567184729686}
   - component: {fileID: 7127763580228006661}
   - component: {fileID: 4713877805497691358}
+  - component: {fileID: 3204512603865727906}
   m_Layer: 0
   m_Name: Start VCam
   m_TagString: Untagged
@@ -77,14 +78,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2066456163480252483}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.08715578, y: 0, z: 0, w: 0.9961947}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3914497594272674714}
   m_Father: {fileID: 1917050547921763364}
-  m_LocalEulerAnglesHint: {x: 10, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6347101567184729686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,11 +156,11 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
-  field of view: 60
+  near clip plane: 0.1
+  far clip plane: 5000
+  field of view: 60.000004
   orthographic: 0
-  orthographic size: 5
+  orthographic size: 10
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -219,6 +220,18 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
+--- !u!114 &3204512603865727906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2066456163480252483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ac3a6912194a974d86436da95a7b369, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2914833210207312382
 GameObject:
   m_ObjectHideFlags: 0
@@ -357,8 +370,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2872803406733189684}
   - component: {fileID: 9206200758817744485}
-  - component: {fileID: 2211449902428518552}
-  - component: {fileID: 6381235823298052374}
   m_Layer: 0
   m_Name: Start Dolly Track
   m_TagString: Untagged
@@ -397,69 +408,14 @@ MonoBehaviour:
   m_Appearance:
     pathColor: {r: 0, g: 1, b: 0, a: 1}
     inactivePathColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    width: 0.2
+    width: 0.65
   m_Looped: 0
   m_Waypoints:
   - position: {x: 0, y: 1, z: -23.543072}
     roll: 0
-  - position: {x: -0.12868643, y: 1.3376826, z: -15.700749}
+  - position: {x: -0.1577034, y: 1.3376826, z: -14.281584}
     roll: 0
-  - position: {x: -0.35548863, y: 2.084491, z: -12.623914}
+  - position: {x: -1.0924063, y: 2.592071, z: -12.623914}
     roll: 0
-  - position: {x: -0.86423564, y: 4.5489626, z: -9.9625435}
+  - position: {x: -2.6902337, y: 5.4863987, z: -10.549667}
     roll: 0
---- !u!95 &2211449902428518552
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8987095701959557484}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!114 &6381235823298052374
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8987095701959557484}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72ece51f2901e7445ab60da3685d6b5f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ShowDebugText: 0
-  m_ShowCameraFrustum: 1
-  m_IgnoreTimeScale: 0
-  m_WorldUpOverride: {fileID: 0}
-  m_UpdateMethod: 2
-  m_BlendUpdateMethod: 1
-  m_DefaultBlend:
-    m_Style: 1
-    m_Time: 2
-    m_CustomCurve:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-  m_CustomBlends: {fileID: 0}
-  m_CameraCutEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_CameraActivatedEvent:
-    m_PersistentCalls:
-      m_Calls: []

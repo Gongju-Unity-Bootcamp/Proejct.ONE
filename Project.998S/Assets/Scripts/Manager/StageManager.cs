@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections.Generic;
 using System.Linq;
 using UniRx;
@@ -20,8 +21,12 @@ public class StageManager : MonoBehaviour
 
     public GameObject target { get; set; }
 
+    public GameObject turnVCam;
+
     public void Init()
     {
+        //startVCam = new StartVCam();
+
         previews = new List<Character>();
         enemies = new List<Character>();
         players = new List<Character>();
@@ -53,7 +58,7 @@ public class StageManager : MonoBehaviour
             if (true == character.IsCharacterDead())
             {
                 NextCharacterTurn();
-
+                
                 return;
             }
 
@@ -106,6 +111,7 @@ public class StageManager : MonoBehaviour
             if (false == otherCharacter.IsCharacterDead())
             {
                 otherCharacter.LookAtTarget(character.transform);
+                //_startVCam.OnLookAt(character.transform);
             }
         }
     }
