@@ -34,7 +34,6 @@ public class SpawnManager
     public GameObject CameraByID(PrefabID id)
         => Managers.Resource.Instantiate(Managers.Data.Prefab[(int)id].Prefab);
 
-
     /// <summary>
     /// 타겟 커서를 생성하는 메소드입니다.
     /// </summary>

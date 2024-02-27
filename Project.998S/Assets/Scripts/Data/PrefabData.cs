@@ -2,7 +2,10 @@ public enum PrefabID
 {
     Dungeon = 0,
     Spawn,
-    Highlight
+    Highlight,
+    StageStartCamera,
+	TurnCamera,
+	EndBattleCamera
 }
 
 public class PrefabData
