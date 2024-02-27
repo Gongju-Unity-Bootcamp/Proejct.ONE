@@ -1,6 +1,5 @@
 using System;
 using UniRx;
-using Object = UnityEngine.Object;
 using UnityEngine.EventSystems;
 using UnityEngine;
 
@@ -25,45 +24,4 @@ public static class Extensions
     /// <param name="component">컴포넌트</param>
     public static void BindModelEvent<T>(this ReactiveProperty<T> model, Action<T> action, Component component)
         => UserInterface.BindModelEvent(model, action, component);
-
-    /// <summary>
-    /// 게임 오브젝트에서 캐릭터 타입 오브젝트를 반환하기 위한 메소드입니다.
-    /// </summary>
-    /// <param name="gameObject">게임 오브젝트</param>
-    public static T GetCharacterInGameObject<T>(this GameObject gameObject) where T : Object
-        => Utils.GetCharacterInGameObject<T>(gameObject);
-
-    public static T GetCharacterInGameObject<T>(this Character character) where T : Object
-        => Utils.GetCharacterInGameObject<T>(character.gameObject);
-
-    /// <summary>
-    /// 게임 오브젝트에서 캐릭터 오브젝트의 타입을 반환하기 위한 메소드입니다.
-    /// </summary>
-    /// <param name="gameObject">게임 오브젝트</param>
-    public static Type GetCharacterTypeInGameObject<T>(this GameObject gameObject) where T : Object
-        => Utils.GetCharacterTypeInGameObject<T>(gameObject);
-
-    public static Type GetCharacterTypeInGameObject<T>(this Character character) where T : Object
-        => Utils.GetCharacterTypeInGameObject<T>(character.gameObject);
-
-    /// <summary>
-    /// 게임 오브젝트에서 캐릭터 오브젝트의 사망 여부를 반환하기 위한 메소드입니다.
-    /// </summary>
-    /// <param name="character"></param>
-    public static bool IsCharacterDead(this Character character)
-        => Utils.IsCharacterDead(character);
-
-    public static bool IsCharacterDead(this GameObject gameObject)
-        => Utils.IsCharacterDead(gameObject.GetCharacterInGameObject<Character>());
-
-
-    /// <summary>
-    /// 게임 오브젝트에서 캐릭터 오브젝트의 공격 여부를 반환하기 위한 메소드입니다.
-    /// </summary>
-    /// <param name="character"></param>
-    public static bool IsCharacterAttack(this Character character)
-        => Utils.IsCharacterAttack(character);
-
-    public static bool IsCharacterAttack(this GameObject gameObject)
-        => Utils.IsCharacterAttack(gameObject.GetCharacterInGameObject<Character>());
 }

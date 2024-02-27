@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static Utils;
+using static Utils.Utilities;
 
 public class SpawnManager
 {

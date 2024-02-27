@@ -2,7 +2,6 @@ using System.Collections;
 using System.Linq;
 using System;
 using UnityEngine;
-using System.Collections.Generic;
 
 public class EnemyActionPopup : UIPopup
 {
@@ -13,19 +12,26 @@ public class EnemyActionPopup : UIPopup
         Slot3Image
     }
 
+    private Enemy enemy;
+    private SkillData data;
+
     public override void Init()
     {
         base.Init();
 
         BindImage(typeof(Images));
-
-        Enemy enemy = Managers.Stage.turnCharacter.Value.GetCharacterInGameObject<Enemy>();
-        SkillData data = enemy.currentSkill.Value;
-        UpdateNewFocusImage(data);
-        StartCoroutine(UpdateAccuracyFocusImage(data));
+        InitUIData();
+        UpdateNewSlotIndicator();
+        StartCoroutine(UpdateAccuracyFocusImage());
     }
 
-    private IEnumerator UpdateAccuracyFocusImage(SkillData data)
+    private void InitUIData()
+    {
+        enemy = Managers.Stage.turnCharacter.Value.GetCharacterInGameObject<Enemy>();
+        data = enemy.currentSkill.Value;
+    }
+
+    private IEnumerator UpdateAccuracyFocusImage()
     {
         int index = -1;
 
@@ -37,6 +43,7 @@ public class EnemyActionPopup : UIPopup
             if (true == isSuccessSlot)
             {
                 GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SUCCESS));
+
                 continue;
             }
 
@@ -44,7 +51,7 @@ public class EnemyActionPopup : UIPopup
         }
     }
 
-    private void UpdateNewFocusImage(SkillData data)
+    private void UpdateNewSlotIndicator()
     {
         foreach (Images imageIndex in Enum.GetValues(typeof(Images)))
         {

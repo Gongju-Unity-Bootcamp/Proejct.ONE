@@ -1,10 +1,13 @@
 using System.Collections.Generic;
+using System.Collections;
 using System;
+using UniRx;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using System.Collections;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem.Utilities;
+using System.Linq;
+using JetBrains.Annotations;
 
 public class PlayerActionPopup : UIPopup
 {
@@ -29,8 +32,17 @@ public class PlayerActionPopup : UIPopup
         SkillNameText
     }
 
-    private Dictionary<Buttons, SkillData> skills = new Dictionary<Buttons, SkillData>();
-    private int focusCount = 0;
+    private SkillSlotState[] slotStates;
+    private Dictionary<Buttons, SkillData> skills;
+    private Player player;
+    private Character targetCharacter;
+    private EquipmentData equipmentData;
+    private SkillData skillData;
+    private int[] dataIndex;
+    private int slotCount;
+    private int playerSkillCount;
+    private int slotIndex;
+    private int oldFocusCount;
 
     public override void Init()
     {
@@ -40,19 +52,21 @@ public class PlayerActionPopup : UIPopup
         BindButton(typeof(Buttons));
         BindText(typeof(Texts));
 
-        Player player = Managers.Stage.turnCharacter.Value.GetCharacterInGameObject<Player>();
-        int skillCount = player.skillIds.Value.Length;
+        InitUIData();
 
-        for (int index = 0; index < Enum.GetValues(typeof(Buttons)).Length; ++index)
+        int buttonCount = Enum.GetValues(typeof(Buttons)).Length;
+        for (int index = 0; index < buttonCount; ++index)
         {
-            Button button = GetButton(0);
+            Button button = GetButton(index);
 
-            if (index < skillCount)
+            if (index < playerSkillCount)
             {
-                SkillData data = Managers.Data.Skill[(SkillID)player.skillIds.Value[index]];
-
+                SkillData data = Managers.Data.Skill[(SkillID)dataIndex[index]];
+                skillData = data;
                 skills.Add((Buttons)index, data);
                 SetSpriteStateInButton(button, data);
+                UpdateAllSlotIndicator(skillData);
+                UpdateAttackIndicator(skillData);
 
                 button.BindViewEvent(OnEnterButton, ViewEvent.Enter, this);
                 button.BindViewEvent(OnExitButton, ViewEvent.Exit, this);
@@ -62,8 +76,36 @@ public class PlayerActionPopup : UIPopup
                 continue;
             }
 
+
+
             button.gameObject.SetActive(false);
         }
+    }
+
+    private void InitUIData()
+    {
+        slotCount = Enum.GetValues(typeof(Images)).Length;
+        slotStates = new SkillSlotState[slotCount];
+        Array.Fill(slotStates, SkillSlotState.Basic);
+        slotIndex = 0;
+
+        skills = new Dictionary<Buttons, SkillData>();
+        player = Managers.Stage.turnCharacter.Value.GetCharacterInGameObject<Player>();
+        equipmentData = Managers.Data.Equipment[player.equipmentId.Value];
+        dataIndex = player.skillIdEnum.Value;
+        playerSkillCount = player.skillIdEnum.Value.Length;
+        targetCharacter = Managers.Stage.selectCharacter.Value;
+
+        oldFocusCount = Managers.Stage.turnCharacter.Value.currentFocus.Value;
+    }
+
+    private void ResetSlot()
+    {
+        Array.Fill(slotStates, SkillSlotState.Basic);
+        slotIndex = 0;
+
+        var character = Managers.Stage.turnCharacter;
+        character.Value.currentFocus.Value = oldFocusCount;
     }
 
     private void SetSpriteStateInButton(Button button, SkillData data)
@@ -80,104 +122,140 @@ public class PlayerActionPopup : UIPopup
     private void OnEnterButton(PointerEventData eventData)
     {
         Buttons button = Enum.Parse<Buttons>(eventData.pointerEnter.name);
-        UpdateAttackIndicator(skills[button]);
+        skillData = skills[button];
     }
 
     private void OnExitButton(PointerEventData eventData)
     {
+        if (true == player.IsCharacterAttack())
+        {
+            return;
+        }
+
         Buttons button = Enum.Parse<Buttons>(eventData.pointerEnter.name);
-        UpdateSlotIndicator(skills[button]);
+        skillData = skills[button];
+        ResetSlot();
+        UpdateAllSlotIndicator(skillData);
     }
 
     private void OnLeftClickButton(PointerEventData eventData)
     {
         Buttons button = Enum.Parse<Buttons>(eventData.pointerEnter.name);
-        Character character = Managers.Stage.turnCharacter.Value;
+        skillData = skills[button];
 
-        if (false == character.IsCharacterAttack())
+        if (false == player.IsCharacterAttack())
         {
-            Character targetCharacter = Managers.Stage.selectCharacter.Value;
-            Skill skill = character.GetSkillEffect(character.currentSkill.Value);
+            oldFocusCount = Managers.Stage.turnCharacter.Value.currentFocus.Value;
 
-            int damage = Define.Calculate.Damage(character.currentAttack.Value
-            + skill.Damage, targetCharacter.currentDefense.Value,
-            character.currentLuck.Value);
-
-            focusCount = character.maxFocus.Value - character.currentFocus.Value;
-            character.maxFocus.Value = focusCount;
-            Managers.Game.Player.slotAccuracyDamage = Define.Calculate.Accuracy(damage, focusCount, character.currentAccuracy.Value);
+            DetermineRemainSlotSuccess();
+            Managers.Game.Player.AttackDamage = CalculateDamage();
+            Managers.Stage.turnCharacter.Value.currentSkill.Value = skillData;
             Managers.Game.Player.AttackAction();
-            StartCoroutine(UpdateAccuracyFocusImage(skills[button]));
+
+            StartCoroutine(UpdateSlotIndicatorCo(skillData));
         }
+    }
+
+    private void DetermineRemainSlotSuccess()
+    {
+        int prob = skillData.Accuracy + equipmentData.Accuracy;
+
+        for (int index = slotIndex; index < slotStates.Length; ++index)
+        {
+            int randomNumber = UnityEngine.Random.Range(1, 101);
+            if (randomNumber <= prob)
+            {
+                slotStates[index] = SkillSlotState.Success;
+            }
+            else
+            {
+                slotStates[index] = SkillSlotState.Fail;
+            }
+        }
+    }
+
+    private int CalculateDamage()
+    {
+        int successCount = 0;
+        for (int index = 0; index < slotStates.Length; ++index)
+        {
+            if (slotStates[index] == SkillSlotState.Success ||
+                slotStates[index] == SkillSlotState.Focus)
+            {
+                successCount++;
+            }
+        }
+
+        int damage = Define.Calculate.Damage(
+                player.currentAttack.Value + skillData.Damage,
+                targetCharacter.currentDefense.Value,
+                player.currentLuck.Value);
+        damage = Math.Max(1, damage * (successCount / 3));
+
+        return damage;
     }
 
     private void OnRightClickButton(PointerEventData eventData)
     {
         Buttons button = Enum.Parse<Buttons>(eventData.pointerEnter.name);
-        focusCount = focusCount > 3 ? 0 : focusCount;
-        focusCount++;
-        UpdateSlotIndicator(skills[button]);
+        skillData = skills[button];
+
+        if (IsAllSlotFocus())
+        {
+            ResetSlot();
+        }
+        else if (Managers.Stage.turnCharacter.Value.currentFocus.Value > 0)
+        {
+            UseFocus(slotIndex++, SkillSlotState.Focus);
+        }
+
+        UpdateAllSlotIndicator(skillData);
     }
+
+    private void UseFocus(int index, SkillSlotState skillSlotState)
+    {
+        slotStates[index] = skillSlotState;
+
+        var character = Managers.Stage.turnCharacter;
+        character.Value.currentFocus.Value -= 1;
+    }
+
+    private bool IsAllSlotFocus() => slotIndex == slotCount;
 
     private void UpdateAttackIndicator(SkillData data)
     {
-        Character targetCharacter = Managers.Stage.selectCharacter.Value;
-        Character character = Managers.Stage.turnCharacter.Value;
-        EquipmentData equipmentData = Managers.Data.Equipment[character.equipmentId.Value];
-        character.currentSkill.Value = data;
-
-        GetText((int)Texts.SkillInfoText).text = $"행운({character.currentLuck.Value}%) = {data.Damage} 스킬 공격력";
-        GetText((int)Texts.DamageText).text = Define.Calculate.Damage(character.currentAttack.Value + data.Damage, targetCharacter.currentDefense.Value).ToString();
+        GetText((int)Texts.SkillInfoText).text = $"행운({player.currentLuck.Value}%) = {data.Damage} 스킬 공격력";
+        GetText((int)Texts.DamageText).text = Define.Calculate.Damage(player.currentAttack.Value + data.Damage, targetCharacter.currentDefense.Value).ToString();
         GetText((int)Texts.SlotAccuracyText).text = Define.Calculate.LuckOrAccuracy(data.Accuracy, equipmentData.Accuracy).ToString();
         GetText((int)Texts.SkillNameText).text = data.Name;
     }
 
-    private void UpdateSlotIndicator(SkillData data)
+    private void UpdateSlotIndicator(SkillData data, int index)
     {
-        Character character = Managers.Stage.turnCharacter.Value;
-
-        if (true == character.IsCharacterAttack())
+        GetImage(index).sprite = slotStates[index] switch
         {
-            return;
-        }
+            SkillSlotState.Basic => Managers.Resource.LoadSprite(string.Concat(skillData.Icon, Define.Keyword.BASIC)),
+            SkillSlotState.Success => Managers.Resource.LoadSprite(string.Concat(skillData.Icon, Define.Keyword.SUCCESS)),
+            SkillSlotState.Fail => Managers.Resource.LoadSprite(string.Concat(skillData.Icon, Define.Keyword.FAIL)),
+            SkillSlotState.Focus => Managers.Resource.LoadSprite(string.Concat(skillData.Icon, Define.Keyword.FOCUS)),
+            _ => throw new NotImplementedException()
+        };
+    }
 
-        for (int index = 0; index < character.maxFocus.Value; ++index)
+    private void UpdateAllSlotIndicator(SkillData data)
+    {
+        for (int index = 0; index < slotStates.Length; ++index)
         {
-            if (index <= focusCount)
-            {
-                GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FOCUS));
-
-                continue;
-            }
-            GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.BASIC));
+            UpdateSlotIndicator(data, index);
         }
     }
 
-    private IEnumerator UpdateAccuracyFocusImage(SkillData data)
+    private IEnumerator UpdateSlotIndicatorCo(SkillData data)
     {
-        int index = -1;
-
-        foreach (bool isSuccessSlot in Managers.Game.Enemy.slotAccuracyDamage.SelectMany(value => value.Keys))
+        for (int index = 0; index < slotStates.Length; ++index)
         {
-            ++index;
-            yield return new WaitForSeconds(0.1f);
-
-            if (true == isSuccessSlot)
-            {
-                if (focusCount == 0)
-                {
-                    GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SUCCESS));
-
-                    continue;
-                }
-
-                GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FOCUS));
-                --focusCount;
-
-                continue;
-            }
-
-            GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.FAIL));
+            UpdateSlotIndicator(data, index);
+            yield return new WaitForSeconds(0.2f);
         }
     }
 }

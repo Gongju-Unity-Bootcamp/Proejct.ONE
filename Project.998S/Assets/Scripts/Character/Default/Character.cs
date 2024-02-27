@@ -1,52 +1,53 @@
 using System;
 using UniRx;
 using UnityEngine;
+using static Utils.Utilities;
 
 public abstract class Character : MonoBehaviour
 {
-    [HideInInspector] public ReactiveProperty<int> maxHealth { get; private set; }
-    [HideInInspector] public ReactiveProperty<int> maxAttack { get; private set; }
-    [HideInInspector] public ReactiveProperty<int> maxDefense { get; private set; }
-    [HideInInspector] public ReactiveProperty<int> maxLuck { get; private set; }
-    [HideInInspector] public ReactiveProperty<int> maxFocus { get; private set; }
+    public ReactiveProperty<int> maxHealth { get; private set; }
+    public ReactiveProperty<int> maxAttack { get; private set; }
+    public ReactiveProperty<int> maxDefense { get; private set; }
+    public ReactiveProperty<int> maxLuck { get; private set; }
+    public ReactiveProperty<int> maxFocus { get; private set; }
 
-    [HideInInspector] public ReactiveProperty<int> maxAccuracy { get; private set; }
+    public ReactiveProperty<int> maxAccuracy { get; private set; }
 
-    [HideInInspector] public ReactiveProperty<int> level { get; set; }
-    [HideInInspector] public ReactiveProperty<int> exp { get; set; }
-    [HideInInspector] public ReactiveProperty<int> requireExp { get; private set; }
-    [HideInInspector] public Skill skill { get; private set; }
+    public ReactiveProperty<int> maxLevel { get; private set; }
+    public ReactiveProperty<int> level { get; set; }
+    public ReactiveProperty<int> exp { get; set; }
+    public ReactiveProperty<int> requireExp { get; private set; }
 
-    [HideInInspector] public ReactiveProperty<int> currentHealth { get; set; }
-    [HideInInspector] public ReactiveProperty<int> currentAttack { get; set; }
-    [HideInInspector] public ReactiveProperty<int> currentDefense { get; set; }
-    [HideInInspector] public ReactiveProperty<int> currentLuck { get; set; }
-    [HideInInspector] public ReactiveProperty<int> currentFocus { get; set; }
+    public ReactiveProperty<int> currentHealth { get; set; }
+    public ReactiveProperty<int> currentAttack { get; set; }
+    public ReactiveProperty<int> currentDefense { get; set; }
+    public ReactiveProperty<int> currentLuck { get; set; }
+    public ReactiveProperty<int> currentFocus { get; set; }
 
-    [HideInInspector] public ReactiveProperty<int> currentAccuracy { get; set; }
+    public ReactiveProperty<int> currentAccuracy { get; set; }
 
-    [HideInInspector] public ReactiveProperty<SkillData> currentSkill { get; set; }
+    public Skill biasSkill { get; set; }
 
-    [HideInInspector] public ReactiveProperty<int[]> currentEffect { get; set; }
+    public ReactiveProperty<SkillData> currentSkill { get; set; }
+    public ReactiveProperty<int[]> currentEffect { get; set; }
 
-    [HideInInspector] protected int maxLevel { get; private set; }
 
-    [HideInInspector] public ReactiveProperty<CharacterID> characterId { get; private set; }
-    [HideInInspector] public ReactiveProperty<string> characterName { get; private set; }
-    [HideInInspector] public ReactiveProperty<CharacterState> characterState { get; set; }
-    [HideInInspector] public ReactiveProperty<EquipmentID> equipmentId { get; set; }
-    [HideInInspector] public ReactiveProperty<int[]> skillIds { get; set; }
-    [HideInInspector] public ReactiveProperty<int[]> effectIds { get; set; }
-    [HideInInspector] public ReactiveProperty<bool> isAttack { get; set; }
+    public ReactiveProperty<CharacterID> characterId { get; private set; }
+    public ReactiveProperty<string> characterName { get; private set; }
+    public ReactiveProperty<CharacterState> characterState { get; set; }
 
-    protected IDisposable updateLookAtTargetAsObservable;
+    public ReactiveProperty<EquipmentID> equipmentId { get; set; }
+    public ReactiveProperty<int[]> skillIdEnum { get; set; }
+    public ReactiveProperty<int[]> effectIdEnum { get; set; }
+
+    public ReactiveProperty<bool> isAttack { get; set; }
+
+    protected IDisposable lookAtTargetAsObservable;
     protected Transform lookTransform;
     protected Animator animator;
 
     protected virtual void Awake()
-    {
-        animator = gameObject.GetComponentAssert<Animator>();
-    }
+        => animator = gameObject.GetComponentAssert<Animator>();
 
     public virtual void Init(CharacterID id)
     {
@@ -58,10 +59,10 @@ public abstract class Character : MonoBehaviour
         
         maxAccuracy = new ReactiveProperty<int>();
 
+        maxLevel = new ReactiveProperty<int>();
         level = new ReactiveProperty<int>();
         exp = new ReactiveProperty<int>();
         requireExp = new ReactiveProperty<int>();
-        skill = new Skill();
 
         currentHealth = new ReactiveProperty<int>();
         currentAttack = new ReactiveProperty<int>();
@@ -71,6 +72,7 @@ public abstract class Character : MonoBehaviour
 
         currentAccuracy = new ReactiveProperty<int>();
 
+        biasSkill = new Skill();
         currentSkill = new ReactiveProperty<SkillData>();
         currentEffect = new ReactiveProperty<int[]>();
 
@@ -78,17 +80,17 @@ public abstract class Character : MonoBehaviour
         characterName = new ReactiveProperty<string>();
         characterState = new ReactiveProperty<CharacterState>();
         equipmentId = new ReactiveProperty<EquipmentID>();
-        skillIds = new ReactiveProperty<int[]>();
-        effectIds = new ReactiveProperty<int[]>();
+        skillIdEnum = new ReactiveProperty<int[]>();
+        effectIdEnum = new ReactiveProperty<int[]>();
 
         isAttack = new ReactiveProperty<bool>();
 
         InitInfo(id);
         InitStat(id);
 
-        UpdateLookAtTargetAsObservable();
-        UpdateStateChangeAsObservable();
-        UpdateSkillChangeAsObservable();
+        LookAtTargetAsObservable();
+        StateChangeAsObservable();
+        SkillChangeAsObservable();
     }
 
     private void InitInfo(CharacterID id)
@@ -117,11 +119,11 @@ public abstract class Character : MonoBehaviour
         LevelData levelData = Managers.Data.Level[data.IdLevel];
         EquipmentData equipmentData = Managers.Data.Equipment[data.IdEquipment];
 
-        maxLevel = Managers.Data.Level.Count;
+        maxLevel.Value = Managers.Data.Level.Count;
         requireExp.Value = levelData.Exp;
 
         equipmentId.Value = equipmentData.Id;
-        skillIds.Value = Utils.ReferenceDataByIdEnum(equipmentData.IdSkillEnum);
+        skillIdEnum.Value = ReferenceDataByIdEnum(equipmentData.IdSkillEnum);
 
         maxHealth.Value = Define.Calculate.Health(data.Health, equipmentData.Health, levelData.HealthPerLevel);
         maxAttack.Value = Define.Calculate.Attack(data.Attack, equipmentData.Attack, levelData.AttackPerLevel);
@@ -143,48 +145,36 @@ public abstract class Character : MonoBehaviour
         currentAccuracy.Value = maxAccuracy.Value;
     }
 
-    protected void UpdateLookAtTargetAsObservable()
+    protected void LookAtTargetAsObservable()
     {
-        updateLookAtTargetAsObservable = Observable.EveryUpdate()
+        lookAtTargetAsObservable = Observable.EveryUpdate()
             .Where(_ => lookTransform != null)
             .Subscribe(_ => 
             {
                 Quaternion targetRotation = Quaternion.LookRotation(lookTransform.position - transform.position);
-                Quaternion newRotation = Quaternion.Slerp(transform.rotation, targetRotation, 15f * Time.deltaTime);
+                Quaternion newRotation = Quaternion.Slerp(transform.rotation, targetRotation, 30f * Time.deltaTime);
                 transform.rotation = newRotation;
             }).AddTo(this);
     }
 
-    protected void UpdateStateChangeAsObservable()
+    protected void StateChangeAsObservable()
     {
-        characterState.Where(_ => characterState != null)
-            .Where(state => state != CharacterState.Death)
+        characterState
             .Subscribe(state =>
             {
                 switch (state)
                 {
-                    case CharacterState.Idle:
-                        break;
-                    case CharacterState.Dodge:
-                        animator.SetTrigger(AnimatorParameter.Dodge);
-                        break;
-                    case CharacterState.Damage:
-                        animator.SetTrigger(AnimatorParameter.Damage);
-                        break;
-                    case CharacterState.NormalAttack:
-                        animator.SetTrigger(AnimatorParameter.NormalAttack);
-                        break;
-                    case CharacterState.ShortSkill:
-                        animator.SetTrigger(AnimatorParameter.ShortSkill);
-                        break;
-                    case CharacterState.LongSkill:
-                        animator.SetTrigger(AnimatorParameter.LongSkill);
-                        break;
-                }
+                    case CharacterState.Dead: animator.SetTrigger(AnimatorParameter.Dead); break;
+                    case CharacterState.Dodge: animator.SetTrigger(AnimatorParameter.Dodge); break;
+                    case CharacterState.Damage: animator.SetTrigger(AnimatorParameter.Damage); break;
+                    case CharacterState.NormalAttack: animator.SetTrigger(AnimatorParameter.NormalAttack); break;
+                    case CharacterState.ShortSkill: animator.SetTrigger(AnimatorParameter.ShortSkill); break;
+                    case CharacterState.LongSkill: animator.SetTrigger(AnimatorParameter.LongSkill); break;
+                };
             }).AddTo(this);
     }
 
-    protected void UpdateSkillChangeAsObservable()
+    private void SkillChangeAsObservable()
     {
         currentSkill.Subscribe(data => 
         {
@@ -193,8 +183,8 @@ public abstract class Character : MonoBehaviour
                 return;
             }
 
-            GetSkillEffect(data);
-        });
+            GetSkillAndEffect(data);
+        }).AddTo(this);
     }
 
     /// <summary>
@@ -203,7 +193,8 @@ public abstract class Character : MonoBehaviour
     /// <param name="state">캐릭터 상태</param>
     public void ChangeCharacterState(CharacterState state)
     {
-        if (false == this.IsCharacterDead())
+        // NOTE : 체크할 필요가 없어졌다..
+        //if (false == this.IsCharacterDead())
         {
             characterState.Value = state;
         }
@@ -221,7 +212,14 @@ public abstract class Character : MonoBehaviour
     /// </summary>
     /// <param name="state"></param>
     public virtual void Attack(int state)
-        => isAttack.Value = true;
+    {
+        isAttack.Value = true;
+
+        // HACK : 기존에는 Controller.DelayForEndTurnCo에서 Idle로 바꿨으나
+        // 공격 이후 Idle로 전환되지 않는 상황이 발생함.
+        // 따라서 공격이 끝날 때 Idle로 직접 State를 바꿔서 2번째 공격부터는 안되던 문제 해결
+        characterState.Value = CharacterState.Idle;
+    }
 
     /// <summary>
     /// 캐릭터가 데미지를 받게 하는 메소드입니다.
@@ -229,60 +227,61 @@ public abstract class Character : MonoBehaviour
     /// <param name="damage">총 데미지</param>
     public virtual void GetDamage(int damage)
     {
-        ChangeCharacterState(CharacterState.Damage);
         currentHealth.Value -= damage;
 
-        if (currentHealth.Value <= 0)
+        if (currentHealth.Value > 0)
         {
-            currentHealth.Value = 0;
-            Die();
+            ChangeCharacterState(CharacterState.Damage);
+        }
+        else
+        {
+            ChangeCharacterState(CharacterState.Dead);
         }
     }
-
-    public abstract void Die();
 
     /// <summary>
     /// 현재 지정된 스킬의 이펙트를 반환하는 메소드입니다.
     /// </summary>
     /// <param name="data">스킬 데이터</param>
-    public Skill GetSkillEffect(SkillData data)
+    public Skill GetSkillAndEffect(SkillData data)
     {
-        skill.Damage = data.Damage;
-        skill.Accuracy = data.Accuracy;
-        maxAccuracy.Value = Managers.Data.Equipment[equipmentId.Value].Accuracy + skill.Accuracy;
+        biasSkill.Damage = data.Damage;
+        biasSkill.Accuracy = data.Accuracy;
+        maxAccuracy.Value = Managers.Data.Equipment[equipmentId.Value].Accuracy + biasSkill.Accuracy;
         currentAccuracy.Value = maxAccuracy.Value;
-        effectIds.Value = Utils.ReferenceDataByIdEnum(data.IdEffectEnum);
+        effectIdEnum.Value = ReferenceDataByIdEnum(data.IdEffectEnum);
 
-        for (int index = 0; index < effectIds.Value.Length; ++ index)
+        for (int index = 0; index < effectIdEnum.Value.Length; ++ index)
         {
-            EffectData effectData = Managers.Data.Effect[(EffectID)effectIds.Value[index]];
+            EffectData effectData = Managers.Data.Effect[(EffectID)effectIdEnum.Value[index]];
 
             if (true == Define.Calculate.IsChance(effectData.Chance))
             {
-                skill.Effect = effectData.Effect;
-                skill.Prefab = Managers.Resource.LoadPrefab(effectData.Prefab);
-                skill.Target = effectData.Target;
-                skill.Animation = effectData.Animation;
+                GetEffectInBiasSkill(effectData);
 
                 continue;
             }
 
-            if (true == Utils.ArrayIndexExists(effectIds.Value, index + 1))
+            if (true == ArrayIndexExists(effectIdEnum.Value, index + 1))
             {
-                EffectData nextEffectData = Managers.Data.Effect[(EffectID)effectIds.Value[index + 1]];
+                EffectData nextEffectData = Managers.Data.Effect[(EffectID)effectIdEnum.Value[index + 1]];
 
-                skill.Effect = nextEffectData.Effect;
-                skill.Prefab = Managers.Resource.LoadPrefab(nextEffectData.Prefab);
-                skill.Target = nextEffectData.Target;
-                skill.Animation = nextEffectData.Animation;
-            }
-            else
-            {
-                break;
+                GetEffectInBiasSkill(nextEffectData);
             }
         }
 
+        return biasSkill;
+    }
 
-        return skill;
+    /// <summary>
+    /// 현재 지정된 스킬의 효과 확률만큼의 이펙트를 반환하는 메소드입니다.
+    /// </summary>
+    /// <param name="data">이펙트 데이터</param>
+    private void GetEffectInBiasSkill(EffectData data)
+    {
+        biasSkill.Effect = data.Effect;
+        biasSkill.Prefab = Managers.Resource.LoadPrefab(data.Prefab);
+        biasSkill.Target = data.Target;
+        biasSkill.Animation = data.Animation;
     }
 }

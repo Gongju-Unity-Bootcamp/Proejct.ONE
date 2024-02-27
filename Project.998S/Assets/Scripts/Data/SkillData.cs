@@ -1,3 +1,8 @@
+public enum SkillID
+{
+    None = 0,
+    Index = 2000,
+}
 public enum SkillEffect
 {
     Immediately = 1,
@@ -14,11 +19,14 @@ public enum SkillTarget
     Enemies = 4
 }
 
-public enum SkillID
+public enum SkillSlotState
 {
-    None = 0,
-    Index = 2000,
+    Basic,
+    Success,
+    Fail,
+    Focus
 }
+
 
 public class SkillData
 {

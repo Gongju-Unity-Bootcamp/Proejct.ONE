@@ -5,20 +5,20 @@ using UnityEngine;
 
 public class StageManager : MonoBehaviour
 {
-    [HideInInspector] public List<Character> previews { get; set; }
-    [HideInInspector] public List<Character> enemies { get; set; }
-    [HideInInspector] public List<Character> players { get; set; }
+    public List<Character> previews { get; set; }
+    public List<Character> enemies { get; set; }
+    public List<Character> players { get; set; }
 
-    [HideInInspector] public Queue<Character> turnQueue { get; private set; }
+    public Queue<Character> turnQueue { get; set; }
 
-    [HideInInspector] public ReactiveProperty<int> turnCount { get; set; }
-    [HideInInspector] public ReactiveProperty<Character> turnCharacter { get; private set; }
-    [HideInInspector] public ReactiveProperty<Character> selectCharacter { get; set; }
+    public ReactiveProperty<int> turnCount { get; set; }
+    public ReactiveProperty<Character> turnCharacter { get; private set; }
+    public ReactiveProperty<Character> selectCharacter { get; set; }
 
-    [HideInInspector] public ReactiveProperty<bool> isEnemyTurn { get; private set; }
-    [HideInInspector] public ReactiveProperty<bool> isPlayerTurn { get; private set; }
+    public ReactiveProperty<bool> isEnemyTurn { get; private set; }
+    public ReactiveProperty<bool> isPlayerTurn { get; private set; }
 
-    [HideInInspector] public GameObject target { get; set; }
+    public GameObject target { get; set; }
 
     public void Init()
     {
@@ -40,11 +40,11 @@ public class StageManager : MonoBehaviour
 
     public void UpdateTurn()
     {
-        UpdateTurnAsObservable();
-        UpdateSelectCharacterAsObservable();
+        TurnAsObservable();
+        SelectCharacterAsObservable();
     }
 
-    private void UpdateTurnAsObservable()
+    private void TurnAsObservable()
     {
         turnCount.Subscribe(value =>
         {
@@ -53,16 +53,17 @@ public class StageManager : MonoBehaviour
             if (true == character.IsCharacterDead())
             {
                 NextCharacterTurn();
+
                 return;
             }
-            Debug.Log($"{turnCount}");
+
             turnCharacter.Value = character;
             ChangeCharacterTurn(turnCharacter.Value);
             turnQueue.Enqueue(character);
         });
     }
 
-    private void UpdateSelectCharacterAsObservable()
+    private void SelectCharacterAsObservable()
     {
         selectCharacter.Where(_ => selectCharacter != null)
             .Subscribe(character =>

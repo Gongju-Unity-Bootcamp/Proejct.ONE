@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public PlayerController Player { get; private set; }
     [HideInInspector] public EnemyController Enemy { get; private set; }
 
-
     private IDisposable updateGameAsObservable;
 
     public void Init()
@@ -27,7 +26,6 @@ public class GameManager : MonoBehaviour
 
         gameObject = new GameObject(nameof(EnemyController));
         gameObject.transform.parent = transform;
-        gameObject.AddComponent<EnemyController>();
         Enemy = gameObject.AddComponent<EnemyController>();
 
         Player.Init();
@@ -58,23 +56,27 @@ public class GameManager : MonoBehaviour
         {
             if (isAllDead)
             {
-                GameNext();
+                NextRound();
             }
         });
     }
     private void CameraMove()
     {
-
+    
     }
-    public void GameNext()
+    public void GameClear()
     {
-        ++round.Value;
-        Managers.Stage.NextDungeon((StageID)round.Value);
+        // NOTE : 게임 성공 UI
     }
 
     public void GameFail()
     {
-        round.Value = 0;
-        GameStart((StageID)1);
+        round.Value = 0; // NOTE : 게임 실패 UI
+    }
+
+    public void NextRound()
+    {
+        ++round.Value;
+        Managers.Stage.NextDungeon((StageID)round.Value);
     }
 }

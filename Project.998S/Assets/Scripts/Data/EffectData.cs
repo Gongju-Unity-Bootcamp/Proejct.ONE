@@ -1,14 +1,14 @@
+public enum EffectID
+{
+    None = 0,
+    Index = 3000,
+}
+
 public enum EffectAnimation
 {
     NormalAttack = 1,
     ShortSkill = 2,
     LongSkill = 3
-}
-
-public enum EffectID
-{
-    None = 0,
-    Index = 3000,
 }
 
 public class EffectData

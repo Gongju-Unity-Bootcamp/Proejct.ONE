@@ -7,6 +7,7 @@ using Object = UnityEngine.Object;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine;
+using static Utils.Utilities;
 
 public enum ViewEvent
 {
@@ -37,11 +38,11 @@ public abstract class UserInterface : MonoBehaviour
         {
             if (typeof(T) == typeof(GameObject))
             {
-                newObjects[i] = Utils.FindChild(gameObject, names[i], true);
+                newObjects[i] = FindChild(gameObject, names[i], true);
             }
             else
             {
-                newObjects[i] = Utils.FindChild<T>(gameObject, names[i], true);
+                newObjects[i] = FindChild<T>(gameObject, names[i], true);
             }
         }
     }
@@ -88,7 +89,7 @@ public abstract class UserInterface : MonoBehaviour
             return newObjects[index] as T;
         }
 
-        throw new InvalidOperationException($"Failed to Get({typeof(T)}, {index}). Binding must be completed first.");
+        throw new InvalidOperationException();
     }
 
     /// <summary>
