@@ -1677,7 +1677,7 @@ GameObject:
   - component: {fileID: 2025012852631496046}
   - component: {fileID: 7691830503489387270}
   m_Layer: 5
-  m_Name: WinPopup
+  m_Name: WinPopup_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
