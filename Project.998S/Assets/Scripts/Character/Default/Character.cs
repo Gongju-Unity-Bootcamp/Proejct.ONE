@@ -235,6 +235,7 @@ public abstract class Character : MonoBehaviour
         }
         else
         {
+            currentHealth.Value = 0;
             ChangeCharacterState(CharacterState.Dead);
         }
     }

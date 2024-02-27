@@ -24,7 +24,7 @@ public class PlayerController : Controller
                     return;
                 }
 
-                if (true == Managers.Stage.turnCharacter.Value.IsCharacterAttack())
+                if (character.characterState.Value == CharacterState.Dead)
                 {
                     return;
                 }
