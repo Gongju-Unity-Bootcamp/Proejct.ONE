@@ -2,3 +2,6 @@ Id,Prefab
 1,HildebrantDungeon
 2,SpawnPosition
 3,Highlight
+4,StageStartCamera
+5,TurnCamera
+6,EndBattleCamera

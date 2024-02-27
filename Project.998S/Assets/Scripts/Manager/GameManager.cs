@@ -1,3 +1,4 @@
+using Cinemachine;
 using System;
 using UniRx;
 using UnityEngine;
@@ -13,8 +14,6 @@ public class GameManager : MonoBehaviour
     public void Init()
     {
         round = new ReactiveProperty<int>();
-
-        GameStart((StageID)1); // NOTE : °ÔÀÓ ½ÇÇà ¸Þ¼Òµå
     }
     
     public void InitController()
@@ -40,6 +39,8 @@ public class GameManager : MonoBehaviour
         Managers.Stage.UpdateTurn();
         round.Value = (int)id;
 
+        Managers.UI.ClosePopupUI();
+        
         Managers.UI.OpenPopup<HUDPopup>();
 
         InitController();
@@ -59,15 +60,18 @@ public class GameManager : MonoBehaviour
             }
         });
     }
-
+    private void CameraMove()
+    {
+    
+    }
     public void GameClear()
     {
-        // NOTE : °ÔÀÓ ¼º°ø UI
+        // NOTE : ê²Œìž„ ì„±ê³µ UI
     }
 
     public void GameFail()
     {
-        round.Value = 0; // NOTE : °ÔÀÓ ½ÇÆÐ UI
+        round.Value = 0; // NOTE : ê²Œìž„ ì‹¤íŒ¨ UI
     }
 
     public void NextRound()
