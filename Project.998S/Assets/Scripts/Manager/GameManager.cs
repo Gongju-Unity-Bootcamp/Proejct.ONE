@@ -43,18 +43,18 @@ public class GameManager : MonoBehaviour
 
         InitController();
 
-        Player.isAllCharacterDead.Subscribe(isAllDead =>
+        Player.isAllEnemyCharacterDead.Subscribe(isAllDead =>
+        {
+            if (isAllDead)
+            {
+                GameClear();
+            }
+        });
+        Enemy.isAllEnemyCharacterDead.Subscribe(isAllDead =>
         {
             if (isAllDead)
             {
                 GameFail();
-            }
-        });
-        Enemy.isAllCharacterDead.Subscribe(isAllDead =>
-        {
-            if (isAllDead)
-            {
-                NextRound();
             }
         });
     }
@@ -64,12 +64,13 @@ public class GameManager : MonoBehaviour
     }
     public void GameClear()
     {
-        // NOTE : 게임 성공 UI
+        Managers.UI.OpenPopup<SimpleWinPopup>();
     }
 
     public void GameFail()
     {
         round.Value = 0; // NOTE : 게임 실패 UI
+        Managers.UI.OpenPopup<DeathPopup>();
     }
 
     public void NextRound()
