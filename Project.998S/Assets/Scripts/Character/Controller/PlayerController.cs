@@ -43,7 +43,6 @@ public class PlayerController : Controller
 
     protected override void StartTurn(ReactiveProperty<bool> isCharacterTurn)
     {
-        Debug.Log("asdsa");
         StageManager stage = Managers.Stage;
         Managers.Stage.AllCharacterLookAtTarget(stage.turnCharacter.Value);
         Character character = stage.enemies[SpawnManager.CHARACTER_CENTER];
