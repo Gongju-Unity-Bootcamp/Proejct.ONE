@@ -1,3 +1,4 @@
+using Cinemachine;
 using System;
 using UniRx;
 using UnityEngine;
@@ -8,13 +9,12 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public PlayerController Player { get; private set; }
     [HideInInspector] public EnemyController Enemy { get; private set; }
 
+
     private IDisposable updateGameAsObservable;
 
     public void Init()
     {
         round = new ReactiveProperty<int>();
-
-        GameStart((StageID)1); //
     }
     
     public void InitController()
@@ -41,6 +41,8 @@ public class GameManager : MonoBehaviour
         Managers.Stage.UpdateTurn();
         round.Value = (int)id;
 
+        Managers.UI.ClosePopupUI();
+        
         Managers.UI.OpenPopup<HUDPopup>();
 
         InitController();
@@ -60,7 +62,10 @@ public class GameManager : MonoBehaviour
             }
         });
     }
+    private void CameraMove()
+    {
 
+    }
     public void GameNext()
     {
         ++round.Value;
