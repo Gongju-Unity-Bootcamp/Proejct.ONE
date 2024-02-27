@@ -46,6 +46,9 @@ public class PlayerHUDSubItem : UISubItem
     }
 
     private int playerIndex;
+    private Player player;
+    private CharacterID id;
+    private CharacterData data;
 
     public override void Init()
     {
@@ -56,6 +59,19 @@ public class PlayerHUDSubItem : UISubItem
         BindButton(typeof(Buttons));
         BindText(typeof(Texts));
 
+        InitUIData();
+        SetNameText(data);
+        SetRenderTexture(data);
+
+        player.currentHealth.BindModelEvent(UpdateHealthIndicator, this);
+        player.currentFocus.BindModelEvent(UpdateFocusIndicator, this);
+        player.level.BindModelEvent(UpdateLevelText, this);
+        player.exp.BindModelEvent(UpdateExpIndicator, this);
+        player.skillIdEnum.BindModelEvent(UpdateSkillIndicator, this);
+    }
+
+    private void InitUIData()
+    {
         List<UISubItem> subItems = GetComponentInParent<PlayersSubItem>().subItems;
 
         for (int index = 0; index < subItems.Count; ++index)
@@ -68,18 +84,9 @@ public class PlayerHUDSubItem : UISubItem
             }
         }
 
-        Player player = Managers.Stage.players[playerIndex].GetCharacterInGameObject<Player>();
-        CharacterID id = player.characterId.Value;
-        CharacterData data = Managers.Data.Character[id];
-
-        SetNameText(data);
-        SetRenderTexture(data);
-
-        player.currentHealth.BindModelEvent(UpdateHealthIndicator, this);
-        player.currentFocus.BindModelEvent(UpdateFocusIndicator, this);
-        player.level.BindModelEvent(UpdateLevelText, this);
-        player.exp.BindModelEvent(UpdateExpIndicator, this);
-        player.skillIds.BindModelEvent(UpdateSkillIndicator, this);
+        player = Managers.Stage.players[playerIndex].GetCharacterInGameObject<Player>();
+        id = player.characterId.Value;
+        data = Managers.Data.Character[id];
     }
 
     private void SetNameText(CharacterData data)
@@ -122,7 +129,7 @@ public class PlayerHUDSubItem : UISubItem
 
     private void UpdateExpIndicator(int exp)
     {
-        float requireExp = Managers.Stage.players[playerIndex].requireExp.Value;
+        float requireExp = player.requireExp.Value;
 
         GetImage((int)Images.ExpGaugeImage).fillAmount = exp / requireExp;
         GetText((int)Texts.ExpText).text = $"{exp} / {requireExp}".ToString();
@@ -130,7 +137,7 @@ public class PlayerHUDSubItem : UISubItem
 
     private void UpdateSkillIndicator(int[] skills)
     {
-        int skillCount = Managers.Stage.players[playerIndex].skillIds.Value.Length;
+        int skillCount = player.skillIdEnum.Value.Length;
 
         for (int index = 0; index < skillImages.Length; ++index)
         {

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System;
 using Random = UnityEngine.Random;
 using UnityEngine;
+using static Utils.Utilities;
 
 public static class Define
 {
@@ -13,8 +14,6 @@ public static class Define
         public const string SUCCESS = "Success";
         public const string FOCUS = "Focus";
         public const string FAIL = "Fail";
-
-        public const string DOOR = "hildebrantDoor";
     }
 
     public static class Table
@@ -103,7 +102,7 @@ public static class Define
             {
                 if (index < focus)
                 {
-                    result.Add(Utils.ReturnDictionary(true, damage));
+                    result.Add(ReturnDictionary(true, damage));
 
                     continue;
                 }
@@ -112,11 +111,11 @@ public static class Define
 
                 if (isCheckChance)
                 {
-                    result.Add(Utils.ReturnDictionary(isCheckChance, damage));
+                    result.Add(ReturnDictionary(isCheckChance, damage));
                 }
                 else
                 {
-                    result.Add(Utils.ReturnDictionary(isCheckChance, Convert.ToInt32(damage * SLOT_LOSS)));
+                    result.Add(ReturnDictionary(isCheckChance, Convert.ToInt32(damage * SLOT_LOSS)));
                 }
             }
 

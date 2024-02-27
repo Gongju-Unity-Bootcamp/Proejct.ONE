@@ -31,6 +31,7 @@ public class DataManager
         Consumption = ParseToDictionary<ConsumptionID, ConsumptionData>(string.Concat(Define.Path.TABLE, Define.Table.CONSUMPTION), data => data.Id);
 
     }
+
     /// <summary>
     /// 리스트로 읽어들인 .csv 데이터 파일을 열거하여 반환하는 메소드입니다.
     /// </summary>

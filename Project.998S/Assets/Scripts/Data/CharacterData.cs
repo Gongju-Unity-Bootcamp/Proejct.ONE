@@ -1,25 +1,25 @@
+public enum CharacterID
+{
+    None = 0,
+    Index = 1000,
+}
+
 public enum CharacterIndex
 {
-    Left = 0, 
-    Center, 
-    Right
+    Left = 0,
+    Center = 1,
+    Right = 2
 }
 
 public enum CharacterState
 {
     Idle,
     Dodge,
+    Dead,
     Damage,
-    Death,
     NormalAttack,
     ShortSkill,
     LongSkill
-}
-
-public enum CharacterID
-{
-    None = 0,
-    Index = 1000,
 }
 
 public class CharacterData

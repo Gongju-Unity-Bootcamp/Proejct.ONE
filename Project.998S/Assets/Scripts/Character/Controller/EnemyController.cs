@@ -18,7 +18,7 @@ public class EnemyController : Controller
 {
     public const int DEFAULT_CARDINATE = 0;
 
-    [HideInInspector] public Dictionary<EnemyActionState, int> threadholds = new Dictionary<EnemyActionState, int>()
+    public Dictionary<EnemyActionState, int> threadholds = new Dictionary<EnemyActionState, int>()
     {
             { EnemyActionState.LowHealthTargetAttack, 40 },
             { EnemyActionState.HighHealthTargetAttack, 80 },
@@ -26,8 +26,10 @@ public class EnemyController : Controller
             { EnemyActionState.LowChanceTry, 80 },
             { EnemyActionState.HighChanceTry, 40 },
     };
-    [HideInInspector] public ReactiveProperty<EnemyActionState> enemyActionState { get; set; }
-    [HideInInspector] public ReactiveProperty<int> cardinate { get; set; }
+    public ReactiveProperty<EnemyActionState> enemyActionState { get; set; }
+    public ReactiveProperty<int> cardinate { get; set; }
+
+    public SkillData SkillData { get; private set; }
 
     public override void Init()
     {
@@ -41,10 +43,12 @@ public class EnemyController : Controller
         enemyActionState.Value = EnemyActionState.Defense;
         cardinate.Value = DEFAULT_CARDINATE;
 
-        UpdateTurnAsObservable(Managers.Stage.isEnemyTurn);
+        SkillData = new SkillData();
+
+        CharacterTurnAsObservable(Managers.Stage.isEnemyTurn);
     }
 
-    protected override void UpdateActionAsObservable()
+    protected override void ActionAsObservable()
     {
         updateActionObserver = Observable.EveryUpdate().Where(_ => Managers.Stage.selectCharacter.Value == null)
             .Where(_ => Managers.Stage.isEnemyTurn.Value && !isSelectCharacter.Value == true)
@@ -68,9 +72,9 @@ public class EnemyController : Controller
         switch (enemyActionState.Value)
         {
             case EnemyActionState.LowHealthTargetAttack:
-                return GetCharacterByRandomInList(Managers.Stage.players, false);
+                return GetCharacterByHealthInList(Managers.Stage.players, false);
             case EnemyActionState.HighHealthTargetAttack:
-                return GetCharacterByRandomInList(Managers.Stage.players, true);
+                return GetCharacterByHealthInList(Managers.Stage.players, true);
         }
 
         return GetCharacterByRandomInList(Managers.Stage.players);
@@ -81,12 +85,12 @@ public class EnemyController : Controller
         StageManager stage = Managers.Stage;
         stage.selectCharacter.Value = character;
         Character turnCharacter = stage.turnCharacter.Value;
-        int skillCount = turnCharacter.skillIds.Value.Length;
-        SkillData[] skillDatas = new SkillData[skillCount];
+        int skillCount = turnCharacter.skillIdEnum.Value.Length;
+        SkillData[] skillDataEnum = new SkillData[skillCount];
 
         for (int index = 0; index < skillCount; ++index)
         {
-            skillDatas[index] = Managers.Data.Skill[(SkillID)turnCharacter.skillIds.Value[index]];
+            skillDataEnum[index] = Managers.Data.Skill[(SkillID)turnCharacter.skillIdEnum.Value[index]];
         }
 
         enemyActionState.Value = EntryThreadholds(EnemyActionState.LowChanceTry, EnemyActionState.HighChanceTry);
@@ -94,38 +98,45 @@ public class EnemyController : Controller
         switch (enemyActionState.Value)
         {
             case EnemyActionState.LowChanceTry:
-                UseSkill(turnCharacter, skillDatas, true);
+                SelectCharacterSkill(turnCharacter, skillDataEnum, false);
 
                 break;
             case EnemyActionState.HighChanceTry:
-                UseSkill(turnCharacter, skillDatas, true);
+                SelectCharacterSkill(turnCharacter, skillDataEnum, true);
                 break;
         }
     }
 
-    private void UseSkill(Character character, SkillData[] skillDatas, bool isHighDamage)
+    private void SelectCharacterSkill (Character character, SkillData[] skillDataEnum, bool isHighDamage)
     {
         Character targetCharacter = Managers.Stage.selectCharacter.Value;
-        SkillData data = new SkillData();
 
-        if (isHighDamage)
-        {
-            data = skillDatas.OrderBy(skill => skill.Damage).Max();
-            character.currentSkill.Value = data;
-        }
-        else
-        {
-            data = skillDatas.OrderByDescending(skill => skill.Damage).First();
-            character.currentSkill.Value = data;
-        }
+        UseSkill(character, skillDataEnum, isHighDamage);
 
-        int damage = Define.Calculate.Damage(character.currentAttack.Value
-            + data.Damage, targetCharacter.currentDefense.Value,
-            character.currentLuck.Value);
+        int damage = Define.Calculate.Damage(character.currentAttack.Value + SkillData.Damage, targetCharacter.currentDefense.Value, character.currentLuck.Value);
         slotAccuracyDamage = Define.Calculate.Accuracy(damage, character.currentAccuracy.Value);
+
+        // NOTE : PlayerActionPopup의 로직과 중복됨. 시간 없어서 일단 기존 코드 사용.
+        Managers.Game.Enemy.AttackDamage = slotAccuracyDamage.Select(dictionary => dictionary.Values.Min()).Min();
+        Managers.Stage.turnCharacter.Value.currentSkill.Value = SkillData;
+
         AttackAction();
 
         Managers.UI.OpenPopup<EnemyActionPopup>();
+    }
+
+    private void UseSkill(Character character, SkillData[] dataEnum, bool isHighDamage)
+    {
+        if (isHighDamage)
+        {
+            SkillData = dataEnum.OrderBy(skill => skill.Damage).Max();
+            character.currentSkill.Value = SkillData;
+        }
+        else
+        {
+            SkillData = dataEnum.OrderByDescending(skill => skill.Damage).First();
+            character.currentSkill.Value = SkillData;
+        }
     }
 
     private EnemyActionState EntryThreadholds(EnemyActionState currentState, EnemyActionState newState)

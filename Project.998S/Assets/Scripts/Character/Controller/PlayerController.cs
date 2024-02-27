@@ -3,22 +3,16 @@ using System;
 using UniRx;
 using UnityEngine;
 
-public enum PlayerActionState
-{
-    Attack,
-    Defense
-}
-
 public class PlayerController : Controller
 {
     public override void Init()
     {
         base.Init();
 
-        UpdateTurnAsObservable(Managers.Stage.isPlayerTurn);
+        CharacterTurnAsObservable(Managers.Stage.isPlayerTurn);
     }
 
-    protected override void UpdateActionAsObservable()
+    protected override void ActionAsObservable()
     {
         updateActionObserver = Observable.EveryUpdate()
             .Where(_ => Input.GetKeyDown(KeyCode.Mouse0)).Where(_ => Managers.Stage.isPlayerTurn.Value == true)
@@ -43,6 +37,7 @@ public class PlayerController : Controller
     protected override void StartTurn(ReactiveProperty<bool> isCharacterTurn)
     {
         StageManager stage = Managers.Stage;
+        Managers.Stage.AllCharacterLookAtTarget(stage.turnCharacter.Value);
         Character character = stage.enemies[SpawnManager.CHARACTER_CENTER];
         Managers.UI.OpenPopup<PlayerActionPopup>();
 

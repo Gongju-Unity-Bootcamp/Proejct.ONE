@@ -6,11 +6,4 @@ public class Enemy : Character
     {
         base.Init(id);
     }
-
-    public override void Die()
-    {
-        animator.SetTrigger(AnimatorParameter.Dead);
-        animator.SetBool(AnimatorParameter.Death, true);
-        ChangeCharacterState(CharacterState.Death);
-    }
 }
