@@ -5,18 +5,24 @@ using System;
 using UniRx;
 using Random = UnityEngine.Random;
 using UnityEngine;
+using UnityEditor;
 
 public abstract class Controller : MonoBehaviour
 {
     [HideInInspector] public List<Dictionary<bool, int>> slotAccuracyDamage { get; set; }
-    [HideInInspector] public ReactiveProperty<bool> isAllCharacterDead { get; set; }
+    [HideInInspector] public ReactiveProperty<bool> isAllEnemyCharacterDead { get; set; }
     [HideInInspector] protected ReactiveProperty<bool> isSelectCharacter { get; set; }
     [HideInInspector] public int AttackDamage { get; set; } // NOTE : 쓰읍....어거지로 껴놓음
 
-    protected bool[] isCharacterDead;
+    public bool isAttack;
+    protected bool[] isEnemyCharacterDead;
     protected IDisposable updateActionObserver, doAttackAsObservable;
     protected GameObject target;
     protected Coroutine damageDelay;
+
+    public void Update()
+    {
+    }
 
     private void Start()
         => Init();
@@ -24,12 +30,14 @@ public abstract class Controller : MonoBehaviour
     public virtual void Init()
     {
         slotAccuracyDamage = new List<Dictionary<bool, int>>();
-        isAllCharacterDead = new ReactiveProperty<bool>();
+        isAllEnemyCharacterDead = new ReactiveProperty<bool>();
         isSelectCharacter = new ReactiveProperty<bool>();
-        isCharacterDead = new bool[SpawnManager.MAX_CHARACTER_COUNT];
+        isEnemyCharacterDead = new bool[SpawnManager.MAX_CHARACTER_COUNT];
 
         isSelectCharacter.Value = false;
         target = Managers.Stage.target;
+
+        
 
         ActionAsObservable();
     }
@@ -43,6 +51,7 @@ public abstract class Controller : MonoBehaviour
             .Subscribe(_ =>
             {
                 isSelectCharacter.Value = false;
+
                 StartTurn(isCharacterTurn);
             });
     }
@@ -58,14 +67,17 @@ public abstract class Controller : MonoBehaviour
     /// <param name="characters">캐릭터 배열</param>
     protected Character GetCharacterByRandomInList(List<Character> characters)
     {
-        int random = Random.Range(0, characters.Count);
+        if (characters.TrueForAll(c => c.IsCharacterDead()))
+        {
+            isAllEnemyCharacterDead.Value = true;
 
-        CheckAllCharacterIsDead();
+            return null;
+        }
+
+        int random = Random.Range(0, characters.Count);
 
         if (true == characters[random].IsCharacterDead())
         {
-            isCharacterDead[random] = true;
-
             return GetCharacterByRandomInList(characters);
         }
 
@@ -79,15 +91,20 @@ public abstract class Controller : MonoBehaviour
     /// <param name="isMaxHealth">최대 생명력</param>
     protected Character GetCharacterByHealthInList(List<Character> characters, bool isMaxHealth = false)
     {
-        int[] health = characters.Select(character => character.currentHealth.Value).ToArray();
+        if (characters.TrueForAll(c => c.IsCharacterDead()))
+        {
+            isAllEnemyCharacterDead.Value = true;
 
-        CheckAllCharacterIsDead();
+            return null;
+        }
+
+        int[] health = characters.Select(character => character.currentHealth.Value).ToArray();
 
         if (false == isMaxHealth)
         {
             if (health.ToList().IndexOf(health.Min()) <= 0)
             {
-                isCharacterDead[health.ToList().IndexOf(health.Min())] = true;
+                isEnemyCharacterDead[health.ToList().IndexOf(health.Min())] = true;
 
                 return GetCharacterByHealthInList(characters);
             }
@@ -96,25 +113,6 @@ public abstract class Controller : MonoBehaviour
         }
 
         return characters[health.ToList().IndexOf(health.Max())];
-    }
-
-    /// <summary>
-    /// 모든 캐릭터의 사망 여부를 확인하는 메소드입니다.
-    /// </summary>
-    private void CheckAllCharacterIsDead()
-    {
-        bool isDead = true;
-
-        for (int index = 0; index < isCharacterDead.Length; ++index)
-        {
-            isDead &= isCharacterDead[index];
-        }
-
-        if (isDead)
-        {
-            Array.Fill(isCharacterDead, false);
-            isAllCharacterDead.Value = isDead;
-        }
     }
 
     /// <summary>
@@ -136,22 +134,31 @@ public abstract class Controller : MonoBehaviour
             //int totalDamage = slotAccuracyDamage.Select(dictionary => dictionary.Values.Min()).Min();
             targetCharacter.GetDamage(AttackDamage);
 
-            StartCoroutine(DelayForEndTurnCo(Random.Range(0.5f, 1.5f), targetCharacter));
-        }).AddTo(this);
+            StartCoroutine(DelayForEndTurnCo(0.5f, targetCharacter));
+        });
     }
 
     /// <summary>
     /// 다음 턴으로 대기 시간을 설정하는 메소드입니다.
     /// </summary>
     /// <param name="delay">다음 턴 대기 시간</param>
-    private IEnumerator DelayForEndTurnCo(float delay, Character character)
+    protected IEnumerator DelayForEndTurnCo(float delay, Character character)
     {
         Managers.UI.ClosePopupUI();
-
         yield return new WaitForSeconds(delay);
 
         //character.ChangeCharacterState(CharacterState.Idle);
         doAttackAsObservable.Dispose();
         Managers.Stage.NextCharacterTurn();
+        isAttack = false;
+
+        if (Managers.Game.Player.isAllEnemyCharacterDead.Value)
+        {
+            Managers.Game.GameClear();
+        }
+        if (Managers.Game.Enemy.isAllEnemyCharacterDead.Value)
+        {
+            Managers.Game.GameFail();
+        }
     }
 }

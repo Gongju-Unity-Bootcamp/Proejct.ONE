@@ -50,10 +50,13 @@ public class SpawnManager
         string dungeonPrefabPath = Managers.Data.Prefab[(int)PrefabID.Dungeon].Prefab;
         string spawnPrefabPath = Managers.Data.Prefab[(int)PrefabID.Spawn].Prefab;
 
-        Dungeon = Managers.Resource.Instantiate(dungeonPrefabPath);
-        Managers.Resource.Instantiate(spawnPrefabPath, Dungeon.transform);
+        if (Dungeon == null)
+        {
+            Dungeon = Managers.Resource.Instantiate(dungeonPrefabPath);
+            Managers.Resource.Instantiate(spawnPrefabPath, Dungeon.transform);
+        }
+        
         StageManager stage = Managers.Stage;
-
         stage.previews = ReplaceCharacter(PREVIEW_TYPE, stage.previews, ReturnArray<CharacterID>
         (
             (CharacterID)Managers.Data.Stage[id + PREVIEW].Left,
@@ -69,6 +72,7 @@ public class SpawnManager
 
         if (stage.turnCount.Value > PREVIEW)
         {
+            EnqueueAllCharacter();
             return;
         }
 
@@ -85,6 +89,7 @@ public class SpawnManager
     private void EnqueueAllCharacter()
     {
         Queue<Character> turnQueue = Managers.Stage.turnQueue;
+        turnQueue.Clear();
 
         for (int index = 0; index < PREVIEW_LEFT; ++index)
         {

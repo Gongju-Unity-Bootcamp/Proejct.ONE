@@ -2,6 +2,8 @@ using System.Linq;
 using System;
 using UniRx;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Collections;
 
 public class PlayerController : Controller
 {
@@ -15,7 +17,7 @@ public class PlayerController : Controller
     protected override void ActionAsObservable()
     {
         updateActionObserver = Observable.EveryUpdate()
-            .Where(_ => Input.GetKeyDown(KeyCode.Mouse0)).Where(_ => Managers.Stage.isPlayerTurn.Value == true)
+            .Where(_ => Input.GetKeyDown(KeyCode.Mouse0)).Where(_ => Managers.Stage.isPlayerTurn.Value && !isAttack == true)
             .Select(_ => GetSelectCharacter())
             .Subscribe(character =>
             {
@@ -29,6 +31,11 @@ public class PlayerController : Controller
                     return;
                 }
 
+                if (true == isAttack)
+                {
+                    return;
+                }
+
                 isSelectCharacter.Value = true;
                 CheckCharacterType(character, typeof(Enemy));
             });
@@ -36,16 +43,16 @@ public class PlayerController : Controller
 
     protected override void StartTurn(ReactiveProperty<bool> isCharacterTurn)
     {
+        Debug.Log("asdsa");
         StageManager stage = Managers.Stage;
         Managers.Stage.AllCharacterLookAtTarget(stage.turnCharacter.Value);
         Character character = stage.enemies[SpawnManager.CHARACTER_CENTER];
+
         Managers.UI.OpenPopup<PlayerActionPopup>();
 
         if (false == character.IsCharacterDead())
         {
             CheckCharacterType(character, typeof(Enemy));
-
-            return;
         }
 
         CheckCharacterType(GetCharacterByRandomInList(stage.enemies), typeof(Enemy));
@@ -68,6 +75,11 @@ public class PlayerController : Controller
 
     private void CheckCharacterType(Character character, Type targetType)
     {
+        if (character == null)
+        {
+            return;
+        }
+
         if (character.GetType() != targetType)
         {
             return;

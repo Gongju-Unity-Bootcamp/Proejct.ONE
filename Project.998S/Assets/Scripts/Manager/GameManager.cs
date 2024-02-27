@@ -14,20 +14,18 @@ public class GameManager : MonoBehaviour
     public void Init()
     {
         round = new ReactiveProperty<int>();
+
+        var playerControllerGameObject = new GameObject(nameof(PlayerController));
+        playerControllerGameObject.transform.parent = transform;
+        Player = playerControllerGameObject.AddComponent<PlayerController>();
+
+        var enemyControllerGameObject = new GameObject(nameof(EnemyController));
+        enemyControllerGameObject.transform.parent = transform;
+        Enemy = enemyControllerGameObject.AddComponent<EnemyController>();
     }
-    
+
     public void InitController()
     {
-        GameObject gameObject;
-
-        gameObject = new GameObject(nameof(PlayerController));
-        gameObject.transform.parent = transform;
-        Player = gameObject.AddComponent<PlayerController>();
-
-        gameObject = new GameObject(nameof(EnemyController));
-        gameObject.transform.parent = transform;
-        Enemy = gameObject.AddComponent<EnemyController>();
-
         Player.Init();
         Enemy.Init();
     } 
@@ -44,21 +42,6 @@ public class GameManager : MonoBehaviour
         Managers.UI.OpenPopup<HUDPopup>();
 
         InitController();
-
-        Player.isAllCharacterDead.Subscribe(isAllDead =>
-        {
-            if (isAllDead)
-            {
-                GameFail();
-            }
-        });
-        Enemy.isAllCharacterDead.Subscribe(isAllDead =>
-        {
-            if (isAllDead)
-            {
-                NextRound();
-            }
-        });
     }
     private void CameraMove()
     {
@@ -66,17 +49,35 @@ public class GameManager : MonoBehaviour
     }
     public void GameClear()
     {
-        // NOTE : 게임 성공 UI
+        Managers.UI.CloseAllPopupUI();
+        Managers.UI.OpenPopup<SimpleWinPopup>();
     }
 
     public void GameFail()
     {
+                Managers.UI.CloseAllPopupUI();
         round.Value = 0; // NOTE : 게임 실패 UI
+        Managers.UI.OpenPopup<DeathPopup>();
     }
 
     public void NextRound()
     {
-        ++round.Value;
+        // NOTE : 현재 유효한 라운드는 1-2임.
+
+        // value = 1 => 2 => 1 + 1 => 2 - 1 * -1
+        // value = 2 => 1 => 2 - 1 => 2 - 1 * 1
+
+        int newRoundValue = round.Value + 1;
+        if (newRoundValue == 3)
+        {
+            newRoundValue = 1;
+        }
+        round.Value = newRoundValue;
         Managers.Stage.NextDungeon((StageID)round.Value);
+
+        Managers.Stage.NextCharacterTurn();
+        
+        Managers.UI.CloseAllPopupUI();
+        Managers.UI.OpenPopup<HUDPopup>();
     }
 }

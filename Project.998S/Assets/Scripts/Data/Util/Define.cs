@@ -136,6 +136,7 @@ public static class Define
 
             if (result <= 0)
             {
+                Debug.Log(result + " case : 1 ");
                 return 1;
             }
 

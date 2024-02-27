@@ -1,8 +1,8 @@
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System;
 using UniRx;
-using UnityEngine;
 
 public enum EnemyActionState
 {
@@ -56,6 +56,13 @@ public class EnemyController : Controller
             .Subscribe(character =>
             {
                 isSelectCharacter.Value = true;
+
+                if (Managers.Game.Enemy.isAllEnemyCharacterDead.Value)
+                {
+                    Managers.Game.GameFail();
+                    return;
+                }
+
                 SetAttackTypeByChance(character);
             });
     }
@@ -107,7 +114,7 @@ public class EnemyController : Controller
         }
     }
 
-    private void SelectCharacterSkill (Character character, SkillData[] skillDataEnum, bool isHighDamage)
+    private void SelectCharacterSkill(Character character, SkillData[] skillDataEnum, bool isHighDamage)
     {
         Character targetCharacter = Managers.Stage.selectCharacter.Value;
 
@@ -117,11 +124,11 @@ public class EnemyController : Controller
         slotAccuracyDamage = Define.Calculate.Accuracy(damage, character.currentAccuracy.Value);
 
         // NOTE : PlayerActionPopup의 로직과 중복됨. 시간 없어서 일단 기존 코드 사용.
-        Managers.Game.Enemy.AttackDamage = slotAccuracyDamage.Select(dictionary => dictionary.Values.Min()).Min();
         Managers.Stage.turnCharacter.Value.currentSkill.Value = SkillData;
 
-        AttackAction();
+        Managers.Game.Enemy.AttackDamage = damage;
 
+        AttackAction();
         Managers.UI.OpenPopup<EnemyActionPopup>();
     }
 
