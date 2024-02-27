@@ -121,7 +121,7 @@ public class EnemyController : Controller
         UseSkill(character, skillDataEnum, isHighDamage);
 
         int damage = Define.Calculate.Damage(character.currentAttack.Value + SkillData.Damage, targetCharacter.currentDefense.Value, character.currentLuck.Value);
-        slotAccuracyDamage = Define.Calculate.Accuracy(damage, character.currentAccuracy.Value);
+        slotAccuracyDamage = Define.Calculate.Accuracy(damage, character.currentLuck.Value);
 
         // NOTE : PlayerActionPopup의 로직과 중복됨. 시간 없어서 일단 기존 코드 사용.
         Managers.Stage.turnCharacter.Value.currentSkill.Value = SkillData;

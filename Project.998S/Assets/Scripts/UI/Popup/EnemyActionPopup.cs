@@ -40,6 +40,7 @@ public class EnemyActionPopup : UIPopup
             ++index;
             yield return new WaitForSeconds(0.1f);
 
+            Debug.Log(isSuccessSlot);
             if (true == isSuccessSlot)
             {
                 GetImage(index).sprite = Managers.Resource.LoadSprite(string.Concat(data.Icon, Define.Keyword.SUCCESS));

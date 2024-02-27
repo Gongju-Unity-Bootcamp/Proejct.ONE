@@ -94,19 +94,12 @@ public static class Define
         /// </summary>
         /// <param name="damage">데미지</param>
         /// <param name="accuracy">정확도</param>
-        public static List<Dictionary<bool, int>> Accuracy(int damage, int focus = 0, int accuracy = 0)
+        public static List<Dictionary<bool, int>> Accuracy(int damage, int accuracy = 0)
         {
             List<Dictionary<bool, int>> result = new List<Dictionary<bool, int>>();
 
             for (int index = 0; index < MAX_SLOT; ++index)
             {
-                if (index < focus)
-                {
-                    result.Add(ReturnDictionary(true, damage));
-
-                    continue;
-                }
-
                 bool isCheckChance = IsChance(accuracy);
 
                 if (isCheckChance)
