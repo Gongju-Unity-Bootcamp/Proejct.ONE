@@ -198,6 +198,11 @@ public class PlayerActionPopup : UIPopup
 
     private void OnRightClickButton(PointerEventData eventData)
     {
+        if (Managers.Game.Player.isAttack)
+        {
+            return;
+        }
+
         Buttons button = Enum.Parse<Buttons>(eventData.pointerEnter.name);
         skillData = skills[button];
 
